@@ -16,16 +16,8 @@ body {
   padding: 2em;
 }
 
-table {
-  border: 3px solid #ddd;
-  border-collapse: collapse;
+#table_container {
   margin-top:2em;
-  width: 100%;
-}
-
-td, th {
-  border: 1px solid #ddd;
-  padding:0.5em;
 }
 
 #search_container {

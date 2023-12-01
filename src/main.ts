@@ -2,28 +2,34 @@ import './style.css'
 
 import * as d3 from 'd3';
 import * as fuzzysearch from 'fast-fuzzy';
-import csv from './assets/2020.csv.gz';
+import csv from './assets/data.csv.gz';
+
+import { Grid } from "gridjs";
+import "gridjs/dist/theme/mermaid.css";
+
+export function fail(): never {
+  throw new Error("missing element");
+}
 
 let searchQuery = "";
+const tableContainer = document.querySelector("#table_container") ?? fail();
 
-// The table generation function
-function createTable(columns: string[]) {
-  const table = d3.select("#table_container").append("table");
-  const thead = table.append("thead");
-  const tbody = table.append("tbody");
-
-  // append the header row
-  thead.append("tr")
-    .selectAll("th")
-    .data(columns)
-    .join("th")
-    .text(x => x);
-  return tbody;
+function createTable(columns: string[], rows:Row[]): Grid {
+  const grid = new Grid({
+    columns,
+    data: rows.map(x => row_to_array(x)),
+    pagination: {
+      limit: 20
+    },
+    sort: true
+  });
+  grid.render(tableContainer);
+  return grid;
 }
 
 const aggregateSchoolboards = false;
 
-function rerender(tbody: d3.Selection<HTMLTableSectionElement, unknown, HTMLElement, any>,
+function rerender(grid: Grid,
   schoolRows: Row[], schoolSearcher: fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>,
   boardRows: Row[], boardSearcher: fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>) {
 
@@ -42,13 +48,9 @@ function rerender(tbody: d3.Selection<HTMLTableSectionElement, unknown, HTMLElem
     }
   }
 
-  tbody.selectAll("tr")
-    .data(filteredRows)
-    .join("tr")
-    .html(d => `
-    <td>${d.city}</td>
-    <td>${d.school}</td>
-    <td>${Math.round(d.ghg_kg)}</td>`)
+  grid.updateConfig({
+    data: filteredRows.map(x => row_to_array(x))
+  }).forceRender();
 }
 
 const COLUMN_NAMES = ["School", "City", "Greenhouse Gas KG"];
@@ -56,6 +58,10 @@ interface Row {
   school: string | null,
   city: string,
   ghg_kg: number,
+}
+
+function row_to_array(row:Row) {
+  return [row.school, row.city, Math.round(row.ghg_kg)];
 }
 
 async function main() {
@@ -91,7 +97,7 @@ async function main() {
     keySelector: d => d.city + " " + d.school
   });
 
-  const tbody = createTable(COLUMN_NAMES)
+  const tbody = createTable(COLUMN_NAMES, schoolRows);
   rerender(tbody, schoolRows, schoolSearcher, boardRows, boardSearcher);
 
   const search = document.getElementById("search") as HTMLInputElement;
