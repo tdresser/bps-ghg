@@ -1,7 +1,7 @@
 import './style.css'
 
 import * as d3 from 'd3';
-import fuzzysearch from 'fuzzysearch-ts';
+import * as fuzzysearch from 'fast-fuzzy';
 
 let searchQuery = "";
 
@@ -21,21 +21,9 @@ function createTable(columns: string[]) {
 }
 
 function rerender(tbody: d3.Selection<HTMLTableSectionElement, unknown, HTMLElement, any>,
-  rows: Row[]) {
+  rows: Row[], searcher: fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>) {
 
-  let filteredRows: Row[] = [];
-  if (!searchQuery) {
-    filteredRows = rows;
-  } else {
-    for (const row of rows) {
-      if (
-        fuzzysearch(searchQuery, row.city.toLowerCase()) ||
-        fuzzysearch(searchQuery, row.school.toLowerCase())
-      ) {
-        filteredRows.push(row);
-      }
-    }
-  }
+  let filteredRows: Row[] = searchQuery == "" ? rows : searcher.search(searchQuery);
 
   tbody.selectAll("tr")
     .data(filteredRows)
@@ -55,7 +43,6 @@ interface Row {
 
 async function main() {
   const df = await d3.csv("2020.csv");
-  console.log(df);
 
   let rows: Row[] = []
   for (const d of df) {
@@ -69,14 +56,18 @@ async function main() {
     });
   }
 
+  const searcher = new fuzzysearch.Searcher(rows, {
+    keySelector: d => d.city + " " + d.school
+  });
+
   const tbody = createTable(COLUMN_NAMES)
-  rerender(tbody, rows);
+  rerender(tbody, rows, searcher);
 
   const search = document.getElementById("search") as HTMLInputElement;
   search?.addEventListener("input", () => {
     searchQuery = search.value.toLocaleLowerCase();
     console.log("q: " + searchQuery);
-    rerender(tbody, rows);
+    rerender(tbody, rows, searcher);
   });
 }
 
