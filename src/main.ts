@@ -20,10 +20,26 @@ function createTable(columns: string[]) {
   return tbody;
 }
 
-function rerender(tbody: d3.Selection<HTMLTableSectionElement, unknown, HTMLElement, any>,
-  rows: Row[], searcher: fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>) {
+const aggregateSchoolboards = false;
 
-  let filteredRows: Row[] = searchQuery == "" ? rows : searcher.search(searchQuery);
+function rerender(tbody: d3.Selection<HTMLTableSectionElement, unknown, HTMLElement, any>,
+  schoolRows: Row[], schoolSearcher: fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>,
+  boardRows: Row[], boardSearcher: fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>) {
+
+  let filteredRows: Row[] = [];
+  if (searchQuery == "") {
+    if (aggregateSchoolboards) {
+      filteredRows = boardRows;
+    } else {
+      filteredRows = schoolRows;
+    }
+  } else {
+    if (aggregateSchoolboards) {
+      filteredRows = boardSearcher.search(searchQuery);
+    } else {
+      filteredRows = schoolSearcher.search(searchQuery);
+    }
+  }
 
   tbody.selectAll("tr")
     .data(filteredRows)
@@ -36,7 +52,7 @@ function rerender(tbody: d3.Selection<HTMLTableSectionElement, unknown, HTMLElem
 
 const COLUMN_NAMES = ["School", "City", "Greenhouse Gas KG"];
 interface Row {
-  school: string,
+  school: string | null,
   city: string,
   ghg_kg: number,
 }
@@ -44,30 +60,44 @@ interface Row {
 async function main() {
   const df = await d3.csv("2020.csv");
 
-  let rows: Row[] = []
+  let schoolRows: Row[] = []
   for (const d of df) {
     if (d["Sector"] != "School Board") {
       continue;
     }
-    rows.push({
+    schoolRows.push({
       school: d["Operation"],
       city: d['City'],
       ghg_kg: parseFloat(d["GHG Emissions KG"])
     });
   }
 
-  const searcher = new fuzzysearch.Searcher(rows, {
+  const boardRows = Array.from(d3.rollup(schoolRows, d => {
+    return {
+      ghg_kg: d3.sum(d, v => v.ghg_kg),
+      school: null,
+      city: d[0].city
+    }
+  }, d => d.city).values());
+
+  console.log(boardRows);
+
+  const schoolSearcher = new fuzzysearch.Searcher(schoolRows, {
+    keySelector: d => d.city + " " + d.school
+  });
+
+  const boardSearcher = new fuzzysearch.Searcher(boardRows, {
     keySelector: d => d.city + " " + d.school
   });
 
   const tbody = createTable(COLUMN_NAMES)
-  rerender(tbody, rows, searcher);
+  rerender(tbody, schoolRows, schoolSearcher, boardRows, boardSearcher);
 
   const search = document.getElementById("search") as HTMLInputElement;
   search?.addEventListener("input", () => {
     searchQuery = search.value.toLocaleLowerCase();
     console.log("q: " + searchQuery);
-    rerender(tbody, rows, searcher);
+    rerender(tbody, schoolRows, schoolSearcher, boardRows, boardSearcher);
   });
 }
 

@@ -32,6 +32,12 @@ td, th {
   display:flex;
 }
 
-#search_container input {
+input {
+  margin-left:1em;
+  margin-right:1em;
+}
+
+#search {
   flex-grow: 1;
+  margin-right:0;
 }
