@@ -4,6 +4,9 @@ import * as d3 from 'd3';
 import * as fuzzysearch from 'fast-fuzzy';
 import csv from './assets/data.csv.gz';
 
+console.log("CSV IS");
+console.log(csv);
+
 import { Grid } from "gridjs";
 import "gridjs/dist/theme/mermaid.css";
 
@@ -15,6 +18,7 @@ let searchQuery = "";
 const tableContainer = document.querySelector("#table_container") ?? fail();
 
 function createTable(columns: string[], rows:Row[]): Grid {
+  console.log("CREATE");
   const grid = new Grid({
     columns,
     data: rows.map(x => row_to_array(x)),
@@ -97,14 +101,14 @@ async function main() {
     keySelector: d => d.city + " " + d.school
   });
 
-  const tbody = createTable(COLUMN_NAMES, schoolRows);
-  rerender(tbody, schoolRows, schoolSearcher, boardRows, boardSearcher);
+  const grid = createTable(COLUMN_NAMES, schoolRows);
+  rerender(grid, schoolRows, schoolSearcher, boardRows, boardSearcher);
 
   const search = document.getElementById("search") as HTMLInputElement;
   search?.addEventListener("input", () => {
     searchQuery = search.value.toLocaleLowerCase();
     console.log("q: " + searchQuery);
-    rerender(tbody, schoolRows, schoolSearcher, boardRows, boardSearcher);
+    rerender(grid, schoolRows, schoolSearcher, boardRows, boardSearcher);
   });
 }
 
