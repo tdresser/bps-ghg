@@ -2,6 +2,7 @@ import './style.css'
 
 import * as d3 from 'd3';
 import * as fuzzysearch from 'fast-fuzzy';
+import csv from './assets/2020.csv.gz';
 
 let searchQuery = "";
 
@@ -58,7 +59,7 @@ interface Row {
 }
 
 async function main() {
-  const df = await d3.csv("2020.csv");
+  const df = await d3.csv(csv);
 
   let schoolRows: Row[] = []
   for (const d of df) {
