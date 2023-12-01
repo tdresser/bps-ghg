@@ -7,6 +7,10 @@ import csv from './assets/data.csv.gz';
 console.log("CSV IS");
 console.log(csv);
 
+// @ts-ignore
+window.csv = csv;
+window.d3 = d3;
+
 import { Grid } from "gridjs";
 import "gridjs/dist/theme/mermaid.css";
 
@@ -90,8 +94,6 @@ async function main() {
       city: d[0].city
     }
   }, d => d.city).values());
-
-  console.log(boardRows);
 
   const schoolSearcher = new fuzzysearch.Searcher(schoolRows, {
     keySelector: d => d.city + " " + d.school
