@@ -5,7 +5,7 @@ import { Grid } from "gridjs";
 import { BOARD_COLUMN_INDEX } from "./constants";
 
 function row_to_array(row: Row) {
-    return [row.school, row.city, Math.round(row.ghg_kg)];
+    return [row.school, row.board, Math.round(row.ghg_kg)];
 }
 
 export class GridView extends View {

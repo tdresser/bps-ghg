@@ -15,7 +15,7 @@ export interface Column {
 
 export interface Row {
     school: string | null,
-    city: string,
+    board: string,
     ghg_kg: number,
 }
 
@@ -61,9 +61,9 @@ export class State {
             return {
                 ghg_kg: d3.sum(d, v => v.ghg_kg),
                 school: null,
-                city: d[0].city
+                board: d[0].board
             }
-        }, d => d.city).values());
+        }, d => d.board).values());
     }
 
     async init(views: Views, activeView: View) {
@@ -72,12 +72,12 @@ export class State {
 
         await yieldy()
         this.#schoolSearcher = new fuzzysearch.Searcher(this.#schoolRows, {
-            keySelector: d => d.city + " " + d.school
+            keySelector: d => d.board + " " + d.school
         });
 
         await yieldy()
         this.#boardSearcher = new fuzzysearch.Searcher(this.#boardRows, {
-            keySelector: d => d.city + " " + d.school
+            keySelector: d => d.board + " " + d.school
         });
     }
 

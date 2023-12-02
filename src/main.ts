@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import csv from './assets/data.csv.gzip';
 import "gridjs/dist/theme/mermaid.css";
 import { fail } from './util';
-import { State, Views } from './state';
+import { Row, State, Views } from './state';
 import { GridView } from './gridView';
 import { BoardView } from './boardView';
 
@@ -24,11 +24,11 @@ async function main() {
     }
   }
   const df = d3.csvParse(decompressedString);
-  const schoolRows = []
+  const schoolRows : Row[] = []
   for (const d of df) {
     schoolRows.push({
       school: d["Operation"],
-      city: d['City'],
+      board: d['City'],
       ghg_kg: parseFloat(d["GHG Emissions KG"])
     });
   }
