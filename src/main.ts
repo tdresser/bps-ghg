@@ -6,44 +6,12 @@ import csv from './assets/data.csv.gzip';
 import { Grid } from "gridjs";
 import "gridjs/dist/theme/mermaid.css";
 import { fail, yieldy } from './util';
+import { State, Row } from './state';
 
 const SCHOOL_COLUMN_INDEX = 0;
 const BOARD_COLUMN_INDEX = 1;
 
 
-interface Column {
-  name: string,
-  hidden: boolean
-}
-
-interface Row {
-  school: string | null,
-  city: string,
-  ghg_kg: number,
-}
-
-interface SchoolFocus {
-  kind: 'school';
-  name: string;
-}
-
-interface BoardFocus {
-  kind: 'board';
-  name: string;
-}
-
-type Searcher = fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>;
-
-interface State {
-  searchQuery: string;
-  aggregateSchoolboards: boolean;
-  focus: SchoolFocus | BoardFocus | null;
-  columns: Column[];
-  schoolRows: Row[];
-  schoolSearcher: Searcher;
-  boardRows: Row[];
-  boardSearcher: Searcher;
-}
 
 const state: State = {
   searchQuery: "",
