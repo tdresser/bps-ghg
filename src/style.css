@@ -33,3 +33,17 @@ input {
   flex-grow: 1;
   margin-right:0;
 }
+
+tr:hover td {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+#board_view {
+  position: absolute;
+  top:0;
+  left:0;
+  background-color: white;
+  width:100%;
+  min-height: 100%;
+  display: none;
+}

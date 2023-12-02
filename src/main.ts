@@ -7,10 +7,16 @@ import { Grid } from "gridjs";
 import "gridjs/dist/theme/mermaid.css";
 import { fail, yieldy } from './util';
 
+const SCHOOL_COLUMN_INDEX = 0;
+const BOARD_COLUMN_INDEX = 1;
+
 let searchQuery = "";
 let aggregateSchoolboards = false;
+let focusedBoard: string | null = null;
 
 const tableContainer = document.querySelector("#table_container") ?? fail();
+const boardView = document.querySelector("#board_view") as HTMLElement ?? fail();
+const boardName = document.querySelector("#board_name") as HTMLElement ?? fail();
 
 function createTable(columns: Column[], rows: Row[]): Grid {
   const grid = new Grid({
@@ -22,6 +28,14 @@ function createTable(columns: Column[], rows: Row[]): Grid {
     sort: true
   });
   grid.render(tableContainer);
+  grid.on('rowClick', (_, data) => {
+    const board = data.cells[BOARD_COLUMN_INDEX].data ?? fail();
+    boardView.style.display = "block";
+    focusedBoard = board.toString();
+    boardName.innerText = focusedBoard;
+
+    console.log('row: ' + JSON.stringify(board))
+  });
   return grid;
 }
 
@@ -44,7 +58,7 @@ function rerender(grid: Grid,
     }
   }
 
-  columns[0].hidden = aggregateSchoolboards;
+  columns[SCHOOL_COLUMN_INDEX].hidden = aggregateSchoolboards;
 
   grid.updateConfig({
     data: filteredRows.map(x => row_to_array(x)),
