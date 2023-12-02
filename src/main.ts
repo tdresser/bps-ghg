@@ -10,18 +10,81 @@ import { fail, yieldy } from './util';
 const SCHOOL_COLUMN_INDEX = 0;
 const BOARD_COLUMN_INDEX = 1;
 
-let searchQuery = "";
-let aggregateSchoolboards = false;
-let focusedBoard: string | null = null;
+
+interface Column {
+  name: string,
+  hidden: boolean
+}
+
+interface Row {
+  school: string | null,
+  city: string,
+  ghg_kg: number,
+}
+
+interface SchoolFocus {
+  kind: 'school';
+  name: string;
+}
+
+interface BoardFocus {
+  kind: 'board';
+  name: string;
+}
+
+type Searcher = fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>;
+
+interface State {
+  searchQuery: string;
+  aggregateSchoolboards: boolean;
+  focus: SchoolFocus | BoardFocus | null;
+  columns: Column[];
+  schoolRows: Row[];
+  schoolSearcher: Searcher;
+  boardRows: Row[];
+  boardSearcher: Searcher;
+}
+
+const state: State = {
+  searchQuery: "",
+  aggregateSchoolboards: false,
+  focus: null,
+  columns: [
+    {
+      name: "School",
+      hidden: false
+    },
+    {
+      name: "City",
+      hidden: false
+    },
+    {
+      name: "Greenhouse Gas KG",
+      hidden: false
+    }],
+  // Require actual initialization, but leaving non-null.
+  schoolRows: [],
+  schoolSearcher: new fuzzysearch.Searcher([]),
+  boardRows: [],
+  boardSearcher: new fuzzysearch.Searcher([]),
+}
+
+function getFilteredRows(state: State) {
+  if (state.searchQuery == "") {
+    return state.aggregateSchoolboards ? state.boardRows : state.schoolRows;
+  }
+  const searcher = state.aggregateSchoolboards ? state.boardSearcher : state.schoolSearcher;
+  return searcher.search(state.searchQuery);
+}
 
 const tableContainer = document.querySelector("#table_container") ?? fail();
 const boardView = document.querySelector("#board_view") as HTMLElement ?? fail();
 const boardName = document.querySelector("#board_name") as HTMLElement ?? fail();
 
-function createTable(columns: Column[], rows: Row[]): Grid {
+function createTable(state: State): Grid {
   const grid = new Grid({
-    columns,
-    data: rows.map(x => row_to_array(x)),
+    columns: state.columns,
+    data: [],
     pagination: {
       limit: 20
     },
@@ -31,63 +94,24 @@ function createTable(columns: Column[], rows: Row[]): Grid {
   grid.on('rowClick', (_, data) => {
     const board = data.cells[BOARD_COLUMN_INDEX].data ?? fail();
     boardView.style.display = "block";
-    focusedBoard = board.toString();
-    boardName.innerText = focusedBoard;
-
+    state.focus = { kind: 'board', name: board.toString() };
+    boardName.innerText = state.focus.name;
     console.log('row: ' + JSON.stringify(board))
   });
   return grid;
 }
 
-function rerender(grid: Grid,
-  schoolRows: Row[], schoolSearcher: fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>,
-  boardRows: Row[], boardSearcher: fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>) {
+function rerender(grid: Grid, state: State) {
 
-  let filteredRows: Row[] = [];
-  if (searchQuery == "") {
-    if (aggregateSchoolboards) {
-      filteredRows = boardRows;
-    } else {
-      filteredRows = schoolRows;
-    }
-  } else {
-    if (aggregateSchoolboards) {
-      filteredRows = boardSearcher.search(searchQuery);
-    } else {
-      filteredRows = schoolSearcher.search(searchQuery);
-    }
-  }
+  let filteredRows = getFilteredRows(state);
 
-  columns[SCHOOL_COLUMN_INDEX].hidden = aggregateSchoolboards;
+  state.columns[SCHOOL_COLUMN_INDEX].hidden = state.aggregateSchoolboards;
 
   grid.updateConfig({
     data: filteredRows.map(x => row_to_array(x)),
   }).forceRender();
 }
 
-interface Column {
-  name: string,
-  hidden: boolean
-}
-
-const columns: Column[] = [
-  {
-    name: "School",
-    hidden: false
-  },
-  {
-    name: "City",
-    hidden: false
-  },
-  {
-    name: "Greenhouse Gas KG",
-    hidden: false
-  }];
-interface Row {
-  school: string | null,
-  city: string,
-  ghg_kg: number,
-}
 
 function row_to_array(row: Row) {
   return [row.school, row.city, Math.round(row.ghg_kg)];
@@ -108,19 +132,18 @@ async function main() {
   }
   const df = d3.csvParse(decompressedString);
 
-  let schoolRows: Row[] = []
   for (const d of df) {
     if (d["Sector"] != "School Board") {
       continue;
     }
-    schoolRows.push({
+    state.schoolRows.push({
       school: d["Operation"],
       city: d['City'],
       ghg_kg: parseFloat(d["GHG Emissions KG"])
     });
   }
 
-  const boardRows = Array.from(d3.rollup(schoolRows, d => {
+  state.boardRows = Array.from(d3.rollup(state.schoolRows, d => {
     return {
       ghg_kg: d3.sum(d, v => v.ghg_kg),
       school: null,
@@ -128,31 +151,31 @@ async function main() {
     }
   }, d => d.city).values());
 
-  const grid = createTable(columns, schoolRows);
+  const grid = createTable(state);
 
   await yieldy()
-  const schoolSearcher = new fuzzysearch.Searcher(schoolRows, {
+  state.schoolSearcher = new fuzzysearch.Searcher(state.schoolRows, {
     keySelector: d => d.city + " " + d.school
   });
 
   await yieldy()
-  const boardSearcher = new fuzzysearch.Searcher(boardRows, {
+  state.boardSearcher = new fuzzysearch.Searcher(state.boardRows, {
     keySelector: d => d.city + " " + d.school
   });
 
-  rerender(grid, schoolRows, schoolSearcher, boardRows, boardSearcher);
+  rerender(grid, state);
 
   const search = document.getElementById("search") as HTMLInputElement ?? fail();
   search.addEventListener("input", () => {
-    searchQuery = search.value.toLocaleLowerCase();
-    console.log("q: " + searchQuery);
-    rerender(grid, schoolRows, schoolSearcher, boardRows, boardSearcher);
+    state.searchQuery = search.value.toLocaleLowerCase();
+    console.log("q: " + state.searchQuery);
+    rerender(grid, state);
   });
 
   const aggregate = document.getElementById("aggregate") as HTMLInputElement ?? fail();
   aggregate.addEventListener("input", () => {
-    aggregateSchoolboards = aggregate.checked;
-    rerender(grid, schoolRows, schoolSearcher, boardRows, boardSearcher);
+    state.aggregateSchoolboards = aggregate.checked;
+    rerender(grid, state);
   })
 }
 
