@@ -4,10 +4,11 @@ import * as d3 from 'd3';
 import csv from './assets/data.csv.gzip';
 import "gridjs/dist/theme/mermaid.css";
 import { fail } from './util';
-import { Row, State, Views } from './state';
+import { Row, State } from './state';
 import { GridView } from './views/gridView';
 import { BoardView } from './views/boardView';
 import { SchoolView } from './views/schoolView';
+import { ViewManager, Views } from './views/viewManager';
 
 let state: State | null = null;
 
@@ -36,17 +37,16 @@ async function main() {
 
   state = new State(schoolRows);
 
-  const gridView = new GridView(state);
-  const schoolView = new SchoolView(state);
-  const boardView = new BoardView(state);
 
-  const views:Views = {}
-  views[GridView.name] = gridView;
-  views[BoardView.name] = boardView;
-  views[SchoolView.name] = schoolView;
 
-  await state.init(views, gridView);
-  state.render();
+  const views:Views = []
+  const viewManager = new ViewManager(views)
+  views.push(new GridView(state, viewManager));
+  views.push(new SchoolView(state, viewManager));
+  views.push(new BoardView(state, viewManager));
+
+  await state.init();
+  viewManager.render(state);
 }
 
 main();

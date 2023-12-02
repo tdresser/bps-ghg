@@ -1,5 +1,11 @@
 import { State } from '../state';
 
+export enum ViewType {
+    Grid = 1,
+    Board = 2,
+    School = 3
+}
+
 export abstract class View {
     #el: HTMLElement;
     #visible: boolean | null = null;
@@ -14,4 +20,5 @@ export abstract class View {
         }
         this.#el.style.display = visible ? "block" : "none";
     }
+    abstract key() : ViewType;
 }

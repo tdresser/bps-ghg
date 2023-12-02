@@ -2,13 +2,9 @@ import * as fuzzysearch from 'fast-fuzzy';
 import { SCHOOL_COLUMN_INDEX } from './constants';
 import * as d3 from 'd3';
 import { yieldy } from './util';
-import { View } from './views/view';
-import { BoardView } from './views/boardView';
-import { SchoolView } from './views/schoolView';
-import { GridView } from './views/gridView';
+import { ViewType } from './views/view';
 
 export type Searcher = fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>;
-export type Views = { [name: string]: View};
 
 export interface Column {
     name: string,
@@ -22,16 +18,16 @@ export interface Row {
 }
 
 interface NoFocus {
-    kind: 'none'
+    kind: ViewType.Grid;
 }
 
 export interface SchoolFocus {
-    kind: 'school';
+    kind: ViewType.School;
     value: string;
 }
 
 export interface BoardFocus {
-    kind: 'board';
+    kind: ViewType.Board;
     value: string;
 }
 
@@ -39,10 +35,8 @@ type Focus = SchoolFocus | BoardFocus | NoFocus;
 
 export class State {
     #searchQuery: string;
-    #focus: Focus = {kind:"none"};
+    #focus: Focus = {kind:ViewType.Grid};
     #aggregateSchoolBoards = false;
-    #views: Views = {};
-    #activeView: View | null = null;
     #columns: Column[] = [
         {
             name: "School",
@@ -74,10 +68,7 @@ export class State {
         }, d => d.board).values());
     }
 
-    async init(views: Views, activeView: View) {
-        this.#views = views;
-        this.#activeView = activeView;
-
+    async init() {
         await yieldy()
         this.#schoolSearcher = new fuzzysearch.Searcher(this.#schoolRows, {
             keySelector: d => d.board + " " + d.school
@@ -88,15 +79,6 @@ export class State {
             keySelector: d => d.board + " " + d.school
         });
     }
-
-    render() {
-        console.log("RENDER");
-        for (const viewName in this.#views) {
-          const view = this.#views[viewName];
-          view.setVisible(view == this.#activeView);
-        }
-        this.#activeView?.render(this);
-      }
 
     getFilteredRows() {
         const aggregate = this.#aggregateSchoolBoards;
@@ -113,16 +95,6 @@ export class State {
 
     setFocus(focus: Focus) {
         this.#focus = focus;
-        switch(focus.kind) {
-            case 'board':
-                this.#activeView = this.#views[BoardView.name]
-                break;
-            case 'school':
-                this.#activeView = this.#views[SchoolView.name]
-                break;
-            case 'none':
-                this.#activeView = this.#views[GridView.name]
-        }
     }
 
     focus() {
@@ -140,17 +112,6 @@ export class State {
 
     aggregateSchoolBoards():boolean {
         return this.#aggregateSchoolBoards;
-    }
-
-    activeView():View {
-        if (this.#activeView == null) {
-            throw("Missing active view");
-        }
-        return this.#activeView;
-    }
-
-    views(): Views {
-        return this.#views;
     }
 }
 
