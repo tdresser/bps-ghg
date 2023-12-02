@@ -9,6 +9,7 @@ export class BoardView extends View {
         this.#boardName = document.querySelector("#board_name") as HTMLElement ?? fail();
     }
     render(state: State): void {
-        throw new Error("Method not implemented.");
+        console.log("FOCUS: " + state.focus()?.value)
+        this.#boardName.innerText = state.focus()?.value ?? fail();
     }
 }

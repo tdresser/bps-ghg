@@ -4,11 +4,11 @@ import * as d3 from 'd3';
 import csv from './assets/data.csv.gzip';
 import "gridjs/dist/theme/mermaid.css";
 import { fail } from './util';
-import { State } from './state';
+import { State, Views } from './state';
 import { GridView } from './gridView';
 import { BoardView } from './boardView';
 
-let state: State = new State([])
+let state: State | null = null;
 
 async function main() {
   const body = (await fetch(csv)).body || fail();
@@ -32,17 +32,17 @@ async function main() {
       ghg_kg: parseFloat(d["GHG Emissions KG"])
     });
   }
-  state = new State(schoolRows)
 
+  state = new State(schoolRows);
 
-
-  const gridView = new GridView(state);
   const boardView = new BoardView();
-  const views = [gridView, boardView]
+  const gridView = new GridView(state);
 
-  await state.init();
-
-  gridView.render(state);
+  const views:Views = {}
+  views[GridView.name] = gridView;
+  views[BoardView.name] = boardView;
+  await state.init(views, gridView);
+  state.render();
 }
 
 main();

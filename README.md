@@ -1,5 +1,4 @@
 # TODO
-- Group by School Board
 - Replace City with School Board
 
 # Setup
@@ -20,4 +19,5 @@ python3 -m http.server --directory .
 ```
 
 Why the gzip file extension instead of gz?
+TODO: check if this matters.
 https://stackoverflow.com/questions/76691769/how-to-use-decompressionstream-to-decompress-a-gzip-file-using-javascript-in-bro

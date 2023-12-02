@@ -39,11 +39,5 @@ tr:hover td {
 }
 
 #board_view {
-  position: absolute;
-  top:0;
-  left:0;
-  background-color: white;
-  width:100%;
-  min-height: 100%;
-  display: none;
+  display:none;
 }

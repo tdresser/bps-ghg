@@ -2,7 +2,7 @@ import { State, Row } from "./state";
 import { View } from "./view";
 import { fail } from "./util";
 import { Grid } from "gridjs";
-import { BOARD_COLUMN_INDEX, SCHOOL_COLUMN_INDEX } from "./constants";
+import { BOARD_COLUMN_INDEX } from "./constants";
 
 function row_to_array(row: Row) {
     return [row.school, row.city, Math.round(row.ghg_kg)];
@@ -11,7 +11,8 @@ function row_to_array(row: Row) {
 export class GridView extends View {
     #grid: Grid
     constructor(state: State) {
-        super(document.querySelector("#table_container") ?? fail());
+        super(document.querySelector("#grid_view") ?? fail());
+        const tableElement = document.querySelector("#table_container") ?? fail();
         this.#grid = new Grid({
             columns: state.columns(),
             data: [],
@@ -20,14 +21,11 @@ export class GridView extends View {
             },
             sort: true
         });
-        this.#grid.render(this.el());
+        this.#grid.render(tableElement);
         this.#grid.on('rowClick', (_, data) => {
-            // TODO: switch view.
             const board = data.cells[BOARD_COLUMN_INDEX].data ?? fail();
-            this.el().style.display = "block";
-            state.setFocus({ kind: 'board', name: board.toString() });
-            //boardName.innerText = state.focus.name;
-            console.log('row: ' + JSON.stringify(board))
+            state.setFocus({ kind: 'board', value: board.toString() });
+            state.render();
         });
 
         const search = document.getElementById("search") as HTMLInputElement ?? fail();
