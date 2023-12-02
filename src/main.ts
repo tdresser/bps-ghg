@@ -5,8 +5,9 @@ import csv from './assets/data.csv.gzip';
 import "gridjs/dist/theme/mermaid.css";
 import { fail } from './util';
 import { Row, State, Views } from './state';
-import { GridView } from './gridView';
-import { BoardView } from './boardView';
+import { GridView } from './views/gridView';
+import { BoardView } from './views/boardView';
+import { SchoolView } from './views/schoolView';
 
 let state: State | null = null;
 
@@ -35,12 +36,15 @@ async function main() {
 
   state = new State(schoolRows);
 
-  const boardView = new BoardView();
   const gridView = new GridView(state);
+  const schoolView = new SchoolView(state);
+  const boardView = new BoardView(state);
 
   const views:Views = {}
   views[GridView.name] = gridView;
   views[BoardView.name] = boardView;
+  views[SchoolView.name] = schoolView;
+
   await state.init(views, gridView);
   state.render();
 }

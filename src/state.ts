@@ -2,8 +2,10 @@ import * as fuzzysearch from 'fast-fuzzy';
 import { SCHOOL_COLUMN_INDEX } from './constants';
 import * as d3 from 'd3';
 import { yieldy } from './util';
-import { View } from './view';
-import { BoardView } from './boardView';
+import { View } from './views/view';
+import { BoardView } from './views/boardView';
+import { SchoolView } from './views/schoolView';
+import { GridView } from './views/gridView';
 
 export type Searcher = fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>;
 export type Views = { [name: string]: View};
@@ -19,19 +21,25 @@ export interface Row {
     ghg_kg: number,
 }
 
-interface SchoolFocus {
+interface NoFocus {
+    kind: 'none'
+}
+
+export interface SchoolFocus {
     kind: 'school';
     value: string;
 }
 
-interface BoardFocus {
+export interface BoardFocus {
     kind: 'board';
     value: string;
 }
 
+type Focus = SchoolFocus | BoardFocus | NoFocus;
+
 export class State {
     #searchQuery: string;
-    #focus: SchoolFocus | BoardFocus | null = null;
+    #focus: Focus = {kind:"none"};
     #aggregateSchoolBoards = false;
     #views: Views = {};
     #activeView: View | null = null;
@@ -41,7 +49,7 @@ export class State {
             hidden: false
         },
         {
-            name: "City",
+            name: "Board",
             hidden: false,
         },
         {
@@ -103,10 +111,17 @@ export class State {
         return this.#columns;
     }
 
-    setFocus(focus: SchoolFocus | BoardFocus | null) {
+    setFocus(focus: Focus) {
         this.#focus = focus;
-        if (focus?.kind == 'board') {
-            this.#activeView = this.#views[BoardView.name]
+        switch(focus.kind) {
+            case 'board':
+                this.#activeView = this.#views[BoardView.name]
+                break;
+            case 'school':
+                this.#activeView = this.#views[SchoolView.name]
+                break;
+            case 'none':
+                this.#activeView = this.#views[GridView.name]
         }
     }
 
@@ -121,6 +136,10 @@ export class State {
     setAggregateSchoolboards(aggregate: boolean) {
         this.#aggregateSchoolBoards = aggregate;
         this.#columns[SCHOOL_COLUMN_INDEX].hidden = aggregate;
+    }
+
+    aggregateSchoolBoards():boolean {
+        return this.#aggregateSchoolBoards;
     }
 
     activeView():View {
