@@ -1,4 +1,4 @@
-import { State, getFilteredRows, Row } from "./state";
+import { State, Row } from "./state";
 import { View } from "./view";
 import { fail } from "./util";
 import { Grid } from "gridjs";
@@ -13,7 +13,7 @@ export class GridView extends View {
     constructor(state: State) {
         super(document.querySelector("#table_container") ?? fail());
         this.#grid = new Grid({
-            columns: state.columns,
+            columns: state.columns(),
             data: [],
             pagination: {
                 limit: 20
@@ -25,32 +25,29 @@ export class GridView extends View {
             // TODO: switch view.
             const board = data.cells[BOARD_COLUMN_INDEX].data ?? fail();
             this.el().style.display = "block";
-            state.focus = { kind: 'board', name: board.toString() };
+            state.setFocus({ kind: 'board', name: board.toString() });
             //boardName.innerText = state.focus.name;
             console.log('row: ' + JSON.stringify(board))
         });
 
         const search = document.getElementById("search") as HTMLInputElement ?? fail();
         search.addEventListener("input", () => {
-            state.searchQuery = search.value.toLocaleLowerCase();
-            console.log("q: " + state.searchQuery);
+            state.setSearchQuery(search.value.toLocaleLowerCase());
             this.render(state);
         });
 
         const aggregate = document.getElementById("aggregate") as HTMLInputElement ?? fail();
         aggregate.addEventListener("input", () => {
-            state.aggregateSchoolboards = aggregate.checked;
+            state.setAggregateSchoolboards(aggregate.checked);
             this.render(state);
         })
     }
 
     render(state: State): void {
-        let filteredRows = getFilteredRows(state);
-
-        state.columns[SCHOOL_COLUMN_INDEX].hidden = state.aggregateSchoolboards;
-
+        let filteredRows = state.getFilteredRows();
         this.#grid.updateConfig({
             data: filteredRows.map(x => row_to_array(x)),
+            columns: state.columns()
         }).forceRender();
     }
 }
