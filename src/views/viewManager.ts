@@ -11,16 +11,11 @@ export class ViewManager {
     }
 
     render(state: State) {
-        console.log("RENDER");
         let currentView = this.activeView(state);
-
-        if (!currentView) {
-            throw("Couldn't find a view");
-        }
         for (const view of this.#views) {
             view.setVisible(view == currentView);
         }
-        currentView?.render(state);
+        currentView.render(state);
     }
 
     activeView(state:State):View {
@@ -30,9 +25,5 @@ export class ViewManager {
             }
         }
         throw("Failure to find view");
-    }
-
-    views(): Views {
-        return this.#views;
     }
 }
