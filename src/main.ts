@@ -3,15 +3,10 @@ import './style.css'
 import * as d3 from 'd3';
 import * as fuzzysearch from 'fast-fuzzy';
 import csv from './assets/data.csv.gzip';
-import { Grid } from "gridjs";
 import "gridjs/dist/theme/mermaid.css";
 import { fail, yieldy } from './util';
-import { State, Row } from './state';
-
-const SCHOOL_COLUMN_INDEX = 0;
-const BOARD_COLUMN_INDEX = 1;
-
-
+import { State } from './state';
+import { GridView } from './gridView';
 
 const state: State = {
   searchQuery: "",
@@ -24,7 +19,7 @@ const state: State = {
     },
     {
       name: "City",
-      hidden: false
+      hidden: false,
     },
     {
       name: "Greenhouse Gas KG",
@@ -37,53 +32,9 @@ const state: State = {
   boardSearcher: new fuzzysearch.Searcher([]),
 }
 
-function getFilteredRows(state: State) {
-  if (state.searchQuery == "") {
-    return state.aggregateSchoolboards ? state.boardRows : state.schoolRows;
-  }
-  const searcher = state.aggregateSchoolboards ? state.boardSearcher : state.schoolSearcher;
-  return searcher.search(state.searchQuery);
-}
-
-const tableContainer = document.querySelector("#table_container") ?? fail();
 const boardView = document.querySelector("#board_view") as HTMLElement ?? fail();
 const boardName = document.querySelector("#board_name") as HTMLElement ?? fail();
 
-function createTable(state: State): Grid {
-  const grid = new Grid({
-    columns: state.columns,
-    data: [],
-    pagination: {
-      limit: 20
-    },
-    sort: true
-  });
-  grid.render(tableContainer);
-  grid.on('rowClick', (_, data) => {
-    const board = data.cells[BOARD_COLUMN_INDEX].data ?? fail();
-    boardView.style.display = "block";
-    state.focus = { kind: 'board', name: board.toString() };
-    boardName.innerText = state.focus.name;
-    console.log('row: ' + JSON.stringify(board))
-  });
-  return grid;
-}
-
-function rerender(grid: Grid, state: State) {
-
-  let filteredRows = getFilteredRows(state);
-
-  state.columns[SCHOOL_COLUMN_INDEX].hidden = state.aggregateSchoolboards;
-
-  grid.updateConfig({
-    data: filteredRows.map(x => row_to_array(x)),
-  }).forceRender();
-}
-
-
-function row_to_array(row: Row) {
-  return [row.school, row.city, Math.round(row.ghg_kg)];
-}
 
 async function main() {
   const body = (await fetch(csv)).body || fail();
@@ -119,7 +70,7 @@ async function main() {
     }
   }, d => d.city).values());
 
-  const grid = createTable(state);
+  const gridView = new GridView(state);
 
   await yieldy()
   state.schoolSearcher = new fuzzysearch.Searcher(state.schoolRows, {
@@ -131,20 +82,7 @@ async function main() {
     keySelector: d => d.city + " " + d.school
   });
 
-  rerender(grid, state);
-
-  const search = document.getElementById("search") as HTMLInputElement ?? fail();
-  search.addEventListener("input", () => {
-    state.searchQuery = search.value.toLocaleLowerCase();
-    console.log("q: " + state.searchQuery);
-    rerender(grid, state);
-  });
-
-  const aggregate = document.getElementById("aggregate") as HTMLInputElement ?? fail();
-  aggregate.addEventListener("input", () => {
-    state.aggregateSchoolboards = aggregate.checked;
-    rerender(grid, state);
-  })
+  gridView.render(state);
 }
 
 main();

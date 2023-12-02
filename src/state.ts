@@ -32,3 +32,11 @@ export interface State {
     boardRows: Row[];
     boardSearcher: Searcher;
 }
+
+export function getFilteredRows(state: State) {
+    if (state.searchQuery == "") {
+        return state.aggregateSchoolboards ? state.boardRows : state.schoolRows;
+    }
+    const searcher = state.aggregateSchoolboards ? state.boardSearcher : state.schoolSearcher;
+    return searcher.search(state.searchQuery);
+}
