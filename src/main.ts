@@ -7,6 +7,7 @@ import "gridjs/dist/theme/mermaid.css";
 import { fail, yieldy } from './util';
 import { State } from './state';
 import { GridView } from './gridView';
+import { BoardView } from './boardView';
 
 const state: State = {
   searchQuery: "",
@@ -31,10 +32,6 @@ const state: State = {
   boardRows: [],
   boardSearcher: new fuzzysearch.Searcher([]),
 }
-
-const boardView = document.querySelector("#board_view") as HTMLElement ?? fail();
-const boardName = document.querySelector("#board_name") as HTMLElement ?? fail();
-
 
 async function main() {
   const body = (await fetch(csv)).body || fail();
@@ -71,6 +68,8 @@ async function main() {
   }, d => d.city).values());
 
   const gridView = new GridView(state);
+  const boardView = new BoardView();
+  const views = [gridView, boardView]
 
   await yieldy()
   state.schoolSearcher = new fuzzysearch.Searcher(state.schoolRows, {
