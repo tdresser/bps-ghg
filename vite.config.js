@@ -5,6 +5,6 @@ export default () => {
         outDir: 'docs'
     },
     base: '/bps-ghg',
-    assetsInclude: ['**/*.csv.gz'],
+    assetsInclude: ['**/*.csv.gzip'],
   };
 };

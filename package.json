@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "gzip -kf src/assets/data.csv && tsc && vite build --config vite.config.js && zip ",
+    "build": "gzip -kf src/assets/data.csv && mv src/assets/data.csv.gz src/assets/data.csv.gzip && tsc && vite build --config vite.config.js",
     "preview": "vite preview"
   },
   "devDependencies": {

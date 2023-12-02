@@ -2,7 +2,7 @@ import './style.css'
 
 import * as d3 from 'd3';
 import * as fuzzysearch from 'fast-fuzzy';
-import csv from './assets/data.csv.gz';
+import csv from './assets/data.csv.gzip';
 
 console.log("CSV IS");
 console.log(csv);
@@ -57,7 +57,7 @@ function rerender(grid: Grid,
   }
 
   grid.updateConfig({
-    data: filteredRows.map(x => row_to_array(x))
+    data: filteredRows.map(x => row_to_array(x)),
   }).forceRender();
 }
 
@@ -73,7 +73,19 @@ function row_to_array(row:Row) {
 }
 
 async function main() {
-  const df = await d3.csv(csv);
+  const body = (await fetch(csv)).body || fail();
+  //console.log(await body.getReader().read());
+  const ds = new DecompressionStream("gzip");
+  const reader = body.pipeThrough(ds).getReader();
+  let decompressedString = "";
+  while (true) {
+    const {done, value} = await reader.read();
+    decompressedString += new TextDecoder().decode(value);
+    if (done) {
+      break;
+    }
+  }
+  const df = d3.csvParse(decompressedString);
 
   let schoolRows: Row[] = []
   for (const d of df) {
@@ -95,6 +107,7 @@ async function main() {
     }
   }, d => d.city).values());
 
+  // TODO: yield.
   const schoolSearcher = new fuzzysearch.Searcher(schoolRows, {
     keySelector: d => d.city + " " + d.school
   });
