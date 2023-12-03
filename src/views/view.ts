@@ -1,12 +1,5 @@
 import { State } from '../state';
 
-export enum FocusType {
-    None = 1,
-    Board = 2,
-    School = 3,
-    Todo = 4,
-}
-
 export abstract class View {
     #el: HTMLElement;
     #visible: boolean | null = null;
@@ -21,5 +14,4 @@ export abstract class View {
         }
         this.#el.style.display = visible ? "block" : "none";
     }
-    abstract key() : FocusType;
 }

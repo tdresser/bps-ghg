@@ -1,5 +1,4 @@
 import { State } from "./state";
-import { FocusType } from "./views/view";
 import { ViewManager } from "./views/viewManager";
 
 export function fail(): never {
@@ -12,7 +11,7 @@ export function yieldy() {
 
 export function makeBack(x:Element, state:State, viewManager:ViewManager) {
     x.addEventListener("click", () => {
-        state.setFocus({kind:FocusType.None})
+        state.setFocus({kind:"none"})
         viewManager.render(state);
     })
 }

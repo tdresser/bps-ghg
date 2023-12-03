@@ -1,21 +1,23 @@
 import { State } from "../state";
-import { View, FocusType } from "./view";
+import { View } from "./view";
 import { fail } from "../util";
 import { Grid } from "gridjs";
 import { ViewManager } from "./viewManager";
+import { MainGraph } from "./mainGraph";
 
 export class MainView extends View {
-    static key = FocusType.None;
     #grid: Grid
     #tableElement: HTMLElement;
     #search_school: HTMLInputElement;
     #search_board: HTMLInputElement;
     #lastSearching: 'schools' | 'boards';
     #hidingTimer: number | undefined = undefined;
+    #graph : MainGraph;
     constructor(state: State, viewManager: ViewManager) {
         super(document.querySelector("#main_view") ?? fail());
         this.#tableElement = document.querySelector("#table_container") ?? fail();
         this.#lastSearching = "schools";
+        this.#graph = new MainGraph("#main_graph", state);
         this.#grid = new Grid({
             data: [],
             pagination: {
@@ -27,16 +29,21 @@ export class MainView extends View {
             if (this.#lastSearching == "boards") {
                 console.log("CURRENTLY Searching Boards")
                 const board = data.cells[0].data ?? fail();
-                state.setFocus({ kind: FocusType.Board, value: board.toString() });
+                state.setFocus({ kind: "board", value: board.toString() });
                 this.#search_board.value = board.toString();
                 // TODO: maybe keep the school if this didn't change?
                 this.#search_school.value = "";
             } else if (this.#lastSearching == "schools"){
                 console.log("CURRENTLY Searching Schools")
                 const school = data.cells[0].data ?? fail();
-                // We stored the board in a second hidden column.
+                // We stored the board/address in a second/third hidden column.
                 const board = data.cells[1].data ?? fail();
-                state.setFocus({ kind: FocusType.School, value: school.toString() });
+                const address = data.cells[2].data ?? fail();
+                state.setFocus({
+                    kind: "school",
+                    schoolName: school.toString(),
+                    address: address.toString()
+                 });
                 this.#search_school.value = school.toString();
                 this.#search_board.value = board.toString();
             } else {
@@ -100,10 +107,6 @@ export class MainView extends View {
         })*/
     }
 
-    key() {
-        return MainView.key;
-    }
-
     render(state: State): void {
         if (this.#lastSearching == "schools") {
             // TODO: does this need to be lower case?
@@ -118,8 +121,12 @@ export class MainView extends View {
                 }, {
                     hidden: true,  // Store the board in the second hidden column.
                     name:"board"
+                },
+                {
+                    hidden: true,  // Store the address in the third hidden column.
+                    name:"address"
                 }],
-                data: rows.map(x => [x.school, x.board]),
+                data: rows.map(x => [x.school, x.board, x.address]),
             }).forceRender();
             console.log("AFTER");
         } else if (this.#lastSearching == "boards") {

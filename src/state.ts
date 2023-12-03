@@ -1,7 +1,6 @@
 import * as fuzzysearch from 'fast-fuzzy';
 import * as d3 from 'd3';
 import { yieldy } from './util';
-import { FocusType } from './views/view';
 
 export type Searcher<T extends BoardRow> = fuzzysearch.Searcher<T, fuzzysearch.FullOptions<T>>;
 
@@ -35,7 +34,7 @@ export class BoardRow {
 
 
     constructor(d: BoardRowData) {
-        this.year = d.year;
+        this.year = d.year
         this.board = d.board;
         this.ghg_kg = d.ghg_kg;
         this.ei = d.ei;
@@ -66,23 +65,24 @@ export class SchoolRow extends BoardRow {
 }
 
 interface NoFocus {
-    kind: FocusType.None;
+    kind: "none";
 }
 
 export interface SchoolFocus {
-    kind: FocusType.School;
-    value: string;
+    kind: "school";
+    schoolName: string;
+    address: string;
 }
 
 export interface BoardFocus {
-    kind: FocusType.Board;
+    kind: "board";
     value: string;
 }
 
 type Focus = SchoolFocus | BoardFocus | NoFocus;
 
 export class State {
-    #focus: Focus = { kind: FocusType.None };
+    #focus: Focus = { kind: "none" };
     #schoolRows: SchoolRow[];
     #boardRows: BoardRow[];
     #schoolSearcher: Searcher<SchoolRow> = new fuzzysearch.Searcher([]);
@@ -149,6 +149,22 @@ export class State {
 
     focus() {
         return this.#focus;
+    }
+
+    focusedSchoolRows():SchoolRow[] | null{
+        if (this.#focus.kind != "school") {
+            null;
+        }
+        const address = (this.#focus as SchoolFocus).address;
+        return this.#schoolRows.filter(x => x.address == address);
+    }
+
+    focusedBoardRows():BoardRow[] | null{
+        if (this.#focus.kind != "board") {
+            null;
+        }
+        const board = (this.#focus as BoardFocus).value;
+        return this.#boardRows.filter(x => x.board == board);
     }
 }
 
