@@ -5,23 +5,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vite + TS</title>
-  <script type="module" crossorigin src="/bps-ghg/assets/index-tQdoVPQo.js"></script>
-  <link rel="stylesheet" crossorigin href="/bps-ghg/assets/index-2RymF7Cn.css">
+  <script type="module" crossorigin src="/bps-ghg/assets/index-uDiyVpyi.js"></script>
+  <link rel="stylesheet" crossorigin href="/bps-ghg/assets/index-9gBdUikD.css">
 </head>
 
 <body>
-  <div id="grid_view">
+  <div id="main_view">
     <div id="search_container">
-      <label for="aggregate">Group Schools</label>
-      <input type="checkbox" id="aggregate" name="aggregate">
-
-      <label for="search">Search:</label>
-      <input type="text" id="search" name="search" />
+      <div class="search_box">
+        <label>Board:</label>
+        <input type="text" id="search_board" name="search_board" />
+      </div>
+      <div class="search_box">
+        <label>School:</label>
+        <input type="text" id="search_school" name="search_school" />
+      </div>
     </div>
     <div id="table_container"></div>
   </div>
   <div id="board_view">
     <h2 id="board_name"></h2>
+    <div class="back" id="board_back">Back</div>
   </div>
 </body>
 

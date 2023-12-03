@@ -1,9 +1,9 @@
 # TODO
-- Update spreadsheet.
-- Make Row a class.
+- Share with Caleb.
 - Set board if you select school.
 - Clear school if you change board.
 - Filter schools by board.
+- Try Paquet
 
 # Setup
 Need to update gridjs package.js.

@@ -18,7 +18,7 @@ export class ViewManager {
         currentView.render(state);
     }
 
-    activeView(state:State):View {
+    activeView(_:State):View {
         // TODO.
         return this.#views[0];
         /*for (const view of this.#views) {

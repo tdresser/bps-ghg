@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import csv from './assets/data.csv.gzip';
 import "gridjs/dist/theme/mermaid.css";
 import { fail } from './util';
-import { Row, State } from './state';
+import { SchoolRow, State } from './state';
 import { MainView } from './views/mainView';
 import { TodoView } from './views/todoView';
 import { ViewManager, Views } from './views/viewManager';
@@ -25,13 +25,21 @@ async function main() {
     }
   }
   const df = d3.csvParse(decompressedString);
-  const schoolRows : Row[] = []
+  const schoolRows : SchoolRow[] = []
   for (const d of df) {
-    schoolRows.push({
-      school: d["Operation"],
-      board: d['City'],
-      ghg_kg: parseFloat(d["GHG Emissions KG"])
-    });
+    // Year,Board,School,Address,City,Area,EI (ekWh/ft2),HDD,GHG (KG)
+
+    schoolRows.push(new SchoolRow({
+      year: parseInt(d['Year']),
+      board: d['Board'],
+      school: d["School"],
+      address: d["Address"],
+      city: d["City"],
+      area: parseFloat(d["Area"]),
+      ei: parseFloat(d["EI (ekWh/ft2)"]),
+      hdd: parseFloat(d["HDD"]),
+      ghg_kg: parseFloat(d["GHG (KG)"]),
+    }));
   }
 
   state = new State(schoolRows);

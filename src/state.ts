@@ -1,20 +1,67 @@
 import * as fuzzysearch from 'fast-fuzzy';
-import { BOARD_COLUMN_INDEX, SCHOOL_COLUMN_INDEX } from './constants';
 import * as d3 from 'd3';
 import { yieldy } from './util';
 import { FocusType } from './views/view';
 
-export type Searcher = fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>;
+export type Searcher<T extends BoardRow> = fuzzysearch.Searcher<T, fuzzysearch.FullOptions<T>>;
 
 export interface Column {
     name: string,
     hidden: boolean
 }
 
-export interface Row {
-    school: string | null,
-    board: string,
-    ghg_kg: number,
+interface BoardRowData {
+    year: number;
+    board: string;
+    ghg_kg: number;
+    ei: number;
+    hdd: number;
+}
+
+interface SchoolRowData extends BoardRowData {
+    school: string;
+    address: string;
+    area: number;
+    city: string;
+}
+
+export class BoardRow {
+    year: number;
+    board: string;
+    ghg_kg: number;
+    ei: number;
+    hdd: number;
+
+    constructor(d:BoardRowData) {
+        this.year = d.year;
+        this.board = d.board;
+        this.ghg_kg = d.ghg_kg;
+        this.ei = d.ei;
+        this.hdd = d.hdd;
+    }
+
+    name() {
+        return this.board;
+    }
+}
+
+export class SchoolRow extends BoardRow {
+    school: string;
+    address: string;
+    area: number;
+    city: string;
+
+    constructor(d:SchoolRowData) {
+        super(d);
+        this.school = d.school;
+        this.address = d.address;
+        this.area = d.area;
+        this.city = d.city;
+    }
+
+    name() {
+        return this.school;
+    }
 }
 
 interface NoFocus {
@@ -37,30 +84,25 @@ export class State {
     #searchQuery: string;
     #focus: Focus = { kind: FocusType.None };
     #aggregateSchoolBoards = true;
-    #columns: Column[] = [
-        {
-            name: "School",
-            hidden: true
-        }, {
-            name: "Board",
-            hidden: false,
-        }];
-    #schoolRows: Row[];
-    #boardRows: Row[];
-    #schoolSearcher: Searcher = new fuzzysearch.Searcher([]);
-    #boardSearcher: Searcher = new fuzzysearch.Searcher([]);
+    #schoolRows: SchoolRow[];
+    #boardRows: BoardRow[];
+    #schoolSearcher: Searcher<SchoolRow> = new fuzzysearch.Searcher([]);
+    #boardSearcher: Searcher<BoardRow> = new fuzzysearch.Searcher([]);
 
-    constructor(schoolRows: Row[]) {
+    constructor(schoolRows: SchoolRow[]) {
         this.#searchQuery = "";
         this.#schoolRows = schoolRows;
 
         this.#boardRows = Array.from(d3.rollup(this.#schoolRows, d => {
-            return {
+            // TODO: Caleb to fill this out.
+            return new BoardRow({
                 ghg_kg: d3.sum(d, v => v.ghg_kg),
-                school: null,
-                board: d[0].board
-            }
-        }, d => d.board).values());
+                board: d[0].board,
+                year: d[0].year,
+                ei: 0,
+                hdd: 0
+            });
+        }, d => d.board + d.year).values());
     }
 
     async init() {
@@ -71,7 +113,7 @@ export class State {
 
         await yieldy()
         this.#boardSearcher = new fuzzysearch.Searcher(this.#boardRows, {
-            keySelector: d => d.board + " " + d.school
+            keySelector: d => d.board
         });
     }
 
@@ -100,10 +142,6 @@ export class State {
 
     }
 
-    columns() {
-        return this.#columns;
-    }
-
     setFocus(focus: Focus) {
         this.#focus = focus;
     }
@@ -118,8 +156,6 @@ export class State {
 
     setAggregateSchoolboards(aggregate: boolean) {
         this.#aggregateSchoolBoards = aggregate;
-        this.#columns[SCHOOL_COLUMN_INDEX].hidden = aggregate;
-        this.#columns[BOARD_COLUMN_INDEX].hidden = !aggregate;
     }
 
     aggregateSchoolBoards(): boolean {

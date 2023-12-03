@@ -1,13 +1,8 @@
-import { State, Row, SchoolFocus, BoardFocus } from "../state";
+import { State, SchoolFocus, BoardFocus } from "../state";
 import { View, FocusType } from "./view";
 import { fail } from "../util";
 import { Grid } from "gridjs";
-import { BOARD_COLUMN_INDEX, SCHOOL_COLUMN_INDEX } from "../constants";
 import { ViewManager } from "./viewManager";
-
-function row_to_array(row: Row) {
-    return [row.school, row.board, Math.round(row.ghg_kg)];
-}
 
 export class MainView extends View {
     static key = FocusType.None;
@@ -19,7 +14,6 @@ export class MainView extends View {
         super(document.querySelector("#main_view") ?? fail());
         this.#tableElement = document.querySelector("#table_container") ?? fail();
         this.#grid = new Grid({
-            columns: state.columns(),
             data: [],
             pagination: {
                 limit: 10
@@ -29,12 +23,12 @@ export class MainView extends View {
         this.#grid.on('rowClick', (_, data) => {
             console.log("ROW CLICK");
             if (state.aggregateSchoolBoards()) {
-                const board = data.cells[BOARD_COLUMN_INDEX].data ?? fail();
+                const board = data.cells[0].data ?? fail();
                 state.setFocus({ kind: FocusType.Board, value: board.toString() });
                 // TODO.
                 this.#search_school.value = "";
             } else {
-                const school = data.cells[SCHOOL_COLUMN_INDEX].data ?? fail();
+                const school = data.cells[0].data ?? fail();
                 state.setFocus({ kind: FocusType.School, value: school.toString() });
             }
             console.log(state);
@@ -102,8 +96,7 @@ export class MainView extends View {
         let filteredRows = state.getFilteredRows();
         console.log("NUM ROWS: ", filteredRows.length);
         this.#grid.updateConfig({
-            data: filteredRows.map(x => row_to_array(x)),
-            columns: state.columns()
+            data: filteredRows.map(x => [x.name()]),
         }).forceRender();
         switch (state.focus().kind) {
             case FocusType.School:
