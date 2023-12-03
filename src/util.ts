@@ -1,5 +1,5 @@
 import { State } from "./state";
-import { ViewType } from "./views/view";
+import { FocusType } from "./views/view";
 import { ViewManager } from "./views/viewManager";
 
 export function fail(): never {
@@ -12,7 +12,7 @@ export function yieldy() {
 
 export function makeBack(x:Element, state:State, viewManager:ViewManager) {
     x.addEventListener("click", () => {
-        state.setFocus({kind:ViewType.Grid})
+        state.setFocus({kind:FocusType.None})
         viewManager.render(state);
     })
 }

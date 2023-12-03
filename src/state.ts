@@ -1,8 +1,8 @@
 import * as fuzzysearch from 'fast-fuzzy';
-import { SCHOOL_COLUMN_INDEX } from './constants';
+import { BOARD_COLUMN_INDEX, SCHOOL_COLUMN_INDEX } from './constants';
 import * as d3 from 'd3';
 import { yieldy } from './util';
-import { ViewType } from './views/view';
+import { FocusType } from './views/view';
 
 export type Searcher = fuzzysearch.Searcher<Row, fuzzysearch.FullOptions<Row>>;
 
@@ -18,16 +18,16 @@ export interface Row {
 }
 
 interface NoFocus {
-    kind: ViewType.Grid;
+    kind: FocusType.None;
 }
 
 export interface SchoolFocus {
-    kind: ViewType.School;
+    kind: FocusType.School;
     value: string;
 }
 
 export interface BoardFocus {
-    kind: ViewType.Board;
+    kind: FocusType.Board;
     value: string;
 }
 
@@ -35,20 +35,15 @@ type Focus = SchoolFocus | BoardFocus | NoFocus;
 
 export class State {
     #searchQuery: string;
-    #focus: Focus = {kind:ViewType.Grid};
-    #aggregateSchoolBoards = false;
+    #focus: Focus = {kind:FocusType.None};
+    #aggregateSchoolBoards = true;
     #columns: Column[] = [
         {
             name: "School",
-            hidden: false
-        },
-        {
+            hidden: true
+        }, {
             name: "Board",
             hidden: false,
-        },
-        {
-            name: "Greenhouse Gas KG",
-            hidden: false
         }];
     #schoolRows: Row[];
     #boardRows: Row[];
@@ -108,6 +103,8 @@ export class State {
     setAggregateSchoolboards(aggregate: boolean) {
         this.#aggregateSchoolBoards = aggregate;
         this.#columns[SCHOOL_COLUMN_INDEX].hidden = aggregate;
+        this.#columns[BOARD_COLUMN_INDEX].hidden = !aggregate;
+
     }
 
     aggregateSchoolBoards():boolean {

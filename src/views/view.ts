@@ -1,9 +1,10 @@
 import { State } from '../state';
 
-export enum ViewType {
-    Grid = 1,
+export enum FocusType {
+    None = 1,
     Board = 2,
-    School = 3
+    School = 3,
+    Todo = 4,
 }
 
 export abstract class View {
@@ -20,5 +21,5 @@ export abstract class View {
         }
         this.#el.style.display = visible ? "block" : "none";
     }
-    abstract key() : ViewType;
+    abstract key() : FocusType;
 }

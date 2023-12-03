@@ -8,23 +8,22 @@
 </head>
 
 <body>
-  <div id="grid_view">
+  <div id="main_view">
     <div id="search_container">
-      <label for="aggregate">Group Schools</label>
-      <input type="checkbox" id="aggregate" name="aggregate">
-
-      <label for="search">Search:</label>
-      <input type="text" id="search" name="search" />
+      <div class="search_box">
+        <label>Board:</label>
+        <input type="text" id="search_board" name="search_board" />
+      </div>
+      <div class="search_box">
+        <label>School:</label>
+        <input type="text" id="search_school" name="search_school" />
+      </div>
     </div>
     <div id="table_container"></div>
   </div>
   <div id="board_view">
     <h2 id="board_name"></h2>
     <div class="back" id="board_back">Back</div>
-  </div>
-  <div id="school_view">
-    <h2 id="school_name"></h2>
-    <div class="back" id="school_back">Back</div>
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>
