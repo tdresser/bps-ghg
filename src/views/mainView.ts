@@ -11,6 +11,7 @@ export class MainView extends View {
     #search_school: HTMLInputElement;
     #search_board: HTMLInputElement;
     #lastSearching: 'schools' | 'boards';
+    #hidingTimer: number | undefined = undefined;
     constructor(state: State, viewManager: ViewManager) {
         super(document.querySelector("#main_view") ?? fail());
         this.#tableElement = document.querySelector("#table_container") ?? fail();
@@ -49,6 +50,7 @@ export class MainView extends View {
             this.render(state);
         });
         this.#search_board.addEventListener("focus", () => {
+            window.clearTimeout(this.#hidingTimer);
             this.#lastSearching = "boards";
             this.#search_board.value = "";
             const y = this.#search_board.getBoundingClientRect().bottom;
@@ -57,7 +59,7 @@ export class MainView extends View {
             viewManager.render(state);
         });
         this.#search_board.addEventListener("focusout", () => {
-            window.setTimeout(() => {
+            this.#hidingTimer = window.setTimeout(() => {
                 this.#tableElement.style.visibility = "hidden";
             }, 0);
         });
@@ -67,6 +69,7 @@ export class MainView extends View {
             this.render(state);
         });
         this.#search_school.addEventListener("focus", () => {
+            window.clearTimeout(this.#hidingTimer);
             this.#lastSearching = "schools";
             this.#search_school.value = "";
             const y = this.#search_school.getBoundingClientRect().bottom;
@@ -75,7 +78,7 @@ export class MainView extends View {
             viewManager.render(state);
         });
         this.#search_school.addEventListener("focusout", () => {
-            window.setTimeout(() => {
+            this.#hidingTimer = window.setTimeout(() => {
                 this.#tableElement.style.visibility = "hidden";
             }, 0);
         });
