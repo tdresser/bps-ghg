@@ -1,6 +1,6 @@
 # TODO
 - Fix pagination.
-- Figure out the right unique ID per school.
+- When you clear the school, we should draw the board thing.
 - Graph things.
 - Try Paquet
 

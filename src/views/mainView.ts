@@ -12,7 +12,7 @@ export class MainView extends View {
     #search_board: HTMLInputElement;
     #lastSearching: 'schools' | 'boards';
     #hidingTimer: number | undefined = undefined;
-    #graph : MainGraph;
+    #graph: MainGraph;
     constructor(state: State, viewManager: ViewManager) {
         super(document.querySelector("#main_view") ?? fail());
         this.#tableElement = document.querySelector("#table_container") ?? fail();
@@ -26,6 +26,7 @@ export class MainView extends View {
         });
         this.#grid.render(this.#tableElement);
         this.#grid.on('rowClick', (_, data) => {
+            this.#tableElement.style.visibility = "hidden";
             if (this.#lastSearching == "boards") {
                 console.log("CURRENTLY Searching Boards")
                 const board = data.cells[0].data ?? fail();
@@ -33,7 +34,7 @@ export class MainView extends View {
                 this.#search_board.value = board.toString();
                 // TODO: maybe keep the school if this didn't change?
                 this.#search_school.value = "";
-            } else if (this.#lastSearching == "schools"){
+            } else if (this.#lastSearching == "schools") {
                 console.log("CURRENTLY Searching Schools")
                 const school = data.cells[0].data ?? fail();
                 // We stored the board/address in a second/third hidden column.
@@ -43,11 +44,11 @@ export class MainView extends View {
                     kind: "school",
                     schoolName: school.toString(),
                     address: address.toString()
-                 });
+                });
                 this.#search_school.value = school.toString();
                 this.#search_board.value = board.toString();
             } else {
-                throw("Should only be able to search schools or boards.")
+                throw ("Should only be able to search schools or boards.")
             }
             viewManager.updateFromState(state);
         });
@@ -97,14 +98,26 @@ export class MainView extends View {
             }
         });
 
-        /*this.el().addEventListener("click", (e) => {
+        this.el().addEventListener("click", (e) => {
             console.log("CLICKY");
             if ((e.target as HTMLElement).tagName == "LABEL") {
                 this.#search_board.blur();
                 this.#search_school.blur();
+                this.#tableElement.style.visibility = "hidden";
             }
             console.log((e.target as HTMLElement).tagName);
-        })*/
+        })
+    }
+
+    paginationFocusHack() {
+        console.log("FOCUS HACK.")
+        const pages = document.querySelectorAll(".gridjs-pages") ?? fail();
+        pages.forEach(x => {
+            x.addEventListener("click", () => {
+                console.log("focus hack: ", this.#lastSearching)
+                window.clearTimeout(this.#hidingTimer);
+            })
+        })
     }
 
     updateFromState(state: State): void {
@@ -121,14 +134,15 @@ export class MainView extends View {
                     name: "school"
                 }, {
                     hidden: true,  // Store the board in the second hidden column.
-                    name:"board"
+                    name: "board"
                 },
                 {
                     hidden: true,  // Store the address in the third hidden column.
-                    name:"address"
+                    name: "address"
                 }],
                 data: rows.map(x => [x.school, x.board, x.address]),
             }).forceRender();
+            this.paginationFocusHack();
             console.log("AFTER");
         } else if (this.#lastSearching == "boards") {
             const query = this.#search_board.value.toLocaleLowerCase();
