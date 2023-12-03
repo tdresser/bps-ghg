@@ -1,4 +1,4 @@
-import { State, SchoolFocus, BoardFocus } from "../state";
+import { State } from "../state";
 import { View, FocusType } from "./view";
 import { fail } from "../util";
 import { Grid } from "gridjs";
@@ -23,8 +23,6 @@ export class MainView extends View {
         });
         this.#grid.render(this.#tableElement);
         this.#grid.on('rowClick', (_, data) => {
-            console.log("ROW CLICK, searching: ", this.#lastSearching);
-            console.log(document.activeElement);
             if (this.#lastSearching == "boards") {
                 console.log("CURRENTLY Searching Boards")
                 const board = data.cells[0].data ?? fail();
@@ -35,13 +33,14 @@ export class MainView extends View {
             } else if (this.#lastSearching == "schools"){
                 console.log("CURRENTLY Searching Schools")
                 const school = data.cells[0].data ?? fail();
+                // We stored the board in a second hidden column.
+                const board = data.cells[1].data ?? fail();
                 state.setFocus({ kind: FocusType.School, value: school.toString() });
-                // TODO: set the board appropriately.
                 this.#search_school.value = school.toString();
+                this.#search_board.value = board.toString();
             } else {
                 throw("Should only be able to search schools or boards.")
             }
-            console.log(state);
             viewManager.render(state);
         });
 
@@ -103,21 +102,34 @@ export class MainView extends View {
     }
 
     render(state: State): void {
-        let filteredRows: string[] = [];
         if (this.#lastSearching == "schools") {
             // TODO: does this need to be lower case?
             const query = this.#search_school.value.toLocaleLowerCase();
             console.log("Focused school: ", query);
-            filteredRows = state.getFilteredSchoolNames(query);
+            const rows = state.getFilteredSchools(query, this.#search_board.value);
+            console.log("BEFORE UPDATE");
+            this.#grid.updateConfig({
+                columns: [{
+                    hidden: false,
+                    name: "school"
+                }, {
+                    hidden: true,  // Store the board in the second hidden column.
+                    name:"board"
+                }],
+                data: rows.map(x => [x.school, x.board]),
+            }).forceRender();
+            console.log("AFTER");
         } else if (this.#lastSearching == "boards") {
             const query = this.#search_board.value.toLocaleLowerCase();
             console.log("Focused board: ", query);
-            filteredRows = state.getFilteredBoardNames(query);
+            const rows = state.getFilteredBoards(query);
+            this.#grid.updateConfig({
+                columns: [{
+                    hidden: false,
+                    name: "board"
+                }],
+                data: rows.map(x => [x.board]),
+            }).forceRender();
         }
-
-        console.log("NUM ROWS: ", filteredRows.length);
-        this.#grid.updateConfig({
-            data: filteredRows.map(x => [x]),
-        }).forceRender();
     }
 }

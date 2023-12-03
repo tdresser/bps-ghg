@@ -120,7 +120,7 @@ export class State {
         });
     }
 
-    getFilteredSchoolNames(query: string): string[] {
+    getFilteredSchools(query: string, board: string | null): SchoolRow[] {
         let searchResults: SchoolRow[] = [];
 
         if (query == "") {
@@ -128,19 +128,18 @@ export class State {
         } else {
             searchResults = this.#schoolSearcher.search(query);
         }
-        // If there's a focused board, filter by it.
-        if (this.#focus.kind == FocusType.Board) {
-            return (searchResults.filter(x => x.board == (this.#focus as BoardFocus).value)
-                .map(x => x.name()))
+        // If there's a board, filter by it.
+        if (board && board.length > 0) {
+            return (searchResults.filter(x => x.board == board))
         }
-        return searchResults.map(x => x.name());
+        return searchResults;
     }
 
-    getFilteredBoardNames(searchQuery: string): string[] {
+    getFilteredBoards(searchQuery: string): BoardRow[] {
         if (searchQuery == "") {
-            return this.#boardRows.map(x => x.name());
+            return this.#boardRows;
         }
-        return this.#boardSearcher.search(searchQuery).map(x => x.name());
+        return this.#boardSearcher.search(searchQuery);
     }
 
     setFocus(focus: Focus) {

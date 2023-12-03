@@ -1,6 +1,6 @@
 # TODO
-- Handle years.
-- Set board if you select school.
+- Fix pagination.
+- Graph things.
 - Try Paquet
 
 # Setup
