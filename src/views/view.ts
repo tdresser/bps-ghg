@@ -6,7 +6,7 @@ export abstract class View {
     constructor(el: HTMLElement) {
         this.#el = el;
     }
-    abstract render(state: State): void;
+    abstract updateFromState(state: State): void;
     el() { return this.#el }
     setVisible(visible: boolean) {
         if (visible == this.#visible) {

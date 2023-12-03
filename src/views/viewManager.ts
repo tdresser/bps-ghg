@@ -10,12 +10,12 @@ export class ViewManager {
         this.#views = views;
     }
 
-    render(state: State) {
+    updateFromState(state: State) {
         let currentView = this.activeView(state);
         for (const view of this.#views) {
             view.setVisible(view == currentView);
         }
-        currentView.render(state);
+        currentView.updateFromState(state);
     }
 
     activeView(_:State):View {

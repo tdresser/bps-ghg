@@ -49,12 +49,12 @@ export class MainView extends View {
             } else {
                 throw("Should only be able to search schools or boards.")
             }
-            viewManager.render(state);
+            viewManager.updateFromState(state);
         });
 
         this.#search_board = document.getElementById("search_board") as HTMLInputElement ?? fail();
         this.#search_board.addEventListener("input", () => {
-            this.render(state);
+            this.updateFromState(state);
         });
         this.#search_board.addEventListener("focus", () => {
             window.clearTimeout(this.#hidingTimer);
@@ -63,7 +63,7 @@ export class MainView extends View {
             const y = this.#search_board.getBoundingClientRect().bottom;
             this.#tableElement.style.visibility = "visible";
             this.#tableElement.style.transform = `translate(0px, ${y}px)`;
-            viewManager.render(state);
+            viewManager.updateFromState(state);
         });
         this.#search_board.addEventListener("focusout", () => {
             this.#hidingTimer = window.setTimeout(() => {
@@ -73,7 +73,7 @@ export class MainView extends View {
 
         this.#search_school = document.getElementById("search_school") as HTMLInputElement ?? fail();
         this.#search_school.addEventListener("input", () => {
-            this.render(state);
+            this.updateFromState(state);
         });
         this.#search_school.addEventListener("focus", () => {
             window.clearTimeout(this.#hidingTimer);
@@ -82,7 +82,7 @@ export class MainView extends View {
             const y = this.#search_school.getBoundingClientRect().bottom;
             this.#tableElement.style.visibility = "visible";
             this.#tableElement.style.transform = `translate(0px, ${y}px)`;
-            viewManager.render(state);
+            viewManager.updateFromState(state);
         });
         this.#search_school.addEventListener("focusout", () => {
             this.#hidingTimer = window.setTimeout(() => {
@@ -107,7 +107,8 @@ export class MainView extends View {
         })*/
     }
 
-    render(state: State): void {
+    updateFromState(state: State): void {
+        this.#graph.updateFromState();
         if (this.#lastSearching == "schools") {
             // TODO: does this need to be lower case?
             const query = this.#search_school.value.toLocaleLowerCase();

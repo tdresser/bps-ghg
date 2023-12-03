@@ -1,62 +1,81 @@
 import * as d3 from 'd3';
 import { State } from '../state';
+import { fail } from '../util';
 
+function updateYAxis(
+    yScale: d3.ScaleLinear<number, number, never>,
+    yAxisEl: d3.Selection<SVGGElement, unknown, HTMLElement, any>) {
+    const yAxis = d3.axisLeft(yScale);
+    yAxis(yAxisEl);
+}
+
+const MARGIN = { top: 10, right: 30, bottom: 30, left: 60 };
 export class MainGraph {
     #state: State;
-    #xAxis: d3.ScaleLinear<number, number, never>;
-    #yAxis: d3.ScaleLinear<number, number, never>;
-    #svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
+    #xScale: d3.ScaleLinear<number, number, never>;
+    #yScale: d3.ScaleLinear<number, number, never>;
+    #yAxisEl: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+    #svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+    #rect: DOMRect;
+
     constructor(containerSelector: string,
         state: State) {
         this.#state = state;
         const container = d3.select(containerSelector);
-        const width = 100;
-        const height = 100;
+        this.#rect = (container.node() as HTMLElement).getBoundingClientRect();
         this.#svg = container.append("svg")
-            .attr("width", width)
-            .attr("height", height);
-        this.#xAxis = d3.scaleLinear()
-            .domain([0, 1])
-            .range([0, width]);
-        this.#yAxis = d3.scaleLinear()
-            .domain([0, 1])
-            .range([height, 0]);
+            .attr("width", this.#rect.width)
+            .attr("height", this.#rect.height)
+            .append("g")
+            .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
 
+        this.#rect.width = this.#rect.width - MARGIN.left - MARGIN.right;
+        this.#rect.height = this.#rect.height - MARGIN.top - MARGIN.bottom;
+        this.#xScale = d3.scaleLinear()
+            .domain([2015, 2020])
+            .range([0, this.#rect.width]);
+        // Temporary scale.
+        this.#yScale = d3.scaleLinear()
+            .domain([0, 1])
+            .range([this.#rect.height, 0]);
+        this.#yAxisEl = this.#svg.append("g")
+        updateYAxis(this.#yScale, this.#yAxisEl);
         this.#svg.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(this.#xAxis));
+            .attr("transform", `translate(0, ${this.#rect.height})`)
+            .call(d3.axisBottom(this.#xScale));
     }
-    update() {
+    updateFromState() {
         const schoolRows = this.#state.focusedSchoolRows();
         const boardRows = this.#state.focusedBoardRows();
-
-        // @ts-ignore
-        const extent = d3.extent(schoolRows, d => d.year) as [number, number];
+        if ((!schoolRows || schoolRows.length == 0) &&
+            (!boardRows || boardRows.length == 0)) {
+            // TODO: cleanup.
+            return;
+        }
 
         // https://stackoverflow.com/questions/16919280/how-to-update-axis-using-d3-js
-        /*var xAxis = d3.svg.axis().scale(x).orient("bottom");
-        var yAxis = d3.svg.axis().scale(y).orient("left");
-
-        this.#svg.selectAll("g.y.axis")
-            .call(this.#yAxis);
-
-        this.#svg.selectAll("g.x.axis")
-            .call(this.#xAxis);*/
 
         // Add Y axis
         // TODO: pick right data!
         let domainMax = 0;
-        if (schoolRows) {
-            domainMax = d3.max(schoolRows, function (d) { return +d.ghg_kg; }) as number
+        console.log(schoolRows);
+        console.log(boardRows)
+        if (schoolRows && schoolRows.length > 0) {
+            domainMax = d3.max(schoolRows, function (d) { return +d.ghg_kg; }) ?? fail()
         }
-        if (boardRows) {
+        console.log("POST SCHOOLS MAX: ", domainMax)
+        if (boardRows && boardRows.length > 0) {
             domainMax = Math.max(domainMax,
-                d3.max(boardRows, function (d) { return +d.ghg_kg; }) as number);
+                d3.max(boardRows, function (d) { return +d.ghg_kg; }) ?? fail());
         }
 
-        this.#svg.append("g")
-            .call(d3.axisLeft(this.#yAxis));
+        this.#yScale = d3.scaleLinear()
+            .domain([0, domainMax])
+            .range([this.#rect.height, 0])
+        console.log("Domain max: ", domainMax)
+        updateYAxis(this.#yScale, this.#yAxisEl);
 
+        console.log("DRAWING LINE");
         // Add the line
         this.#svg.append("path")
             .datum(boardRows)
@@ -65,9 +84,9 @@ export class MainGraph {
             .attr("stroke-width", 1.5)
             .attr("d", d3.line()
                 // @ts-ignore
-                .x(d => d.year)
+                .x(d => this.#xScale(d.year))
                 // @ts-ignore
-                .y(d => d.ghg_kg) as any
+                .y(d => this.#yScale(d.ghg_kg)) as any
             );
     }
 }

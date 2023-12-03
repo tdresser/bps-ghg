@@ -13,7 +13,7 @@ export class TodoView extends View {
         const back = document.querySelector("#board_back") ?? fail();
         makeBack(back, state, viewManager);
     }
-    render(state: State): void {
+    updateFromState(state: State): void {
         const focus = state.focus() as BoardFocus;
         console.log("FOCUS: " + focus.value)
         this.#boardName.innerText = "Board: " + focus.value;

@@ -53,3 +53,7 @@ tr:hover td {
 #board_view {
   display:none;
 }
+
+#main_graph {
+  height:300px;
+}

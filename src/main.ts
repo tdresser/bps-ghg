@@ -50,7 +50,7 @@ async function main() {
   views.push(new TodoView(state, viewManager));
 
   await state.init();
-  viewManager.render(state);
+  viewManager.updateFromState(state);
 }
 
 main();
