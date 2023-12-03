@@ -11,7 +11,6 @@ export class MainView extends View {
     #search_school: HTMLInputElement;
     #search_board: HTMLInputElement;
     #lastSearching: 'schools' | 'boards';
-    #hidingTimer: number | undefined = undefined;
     #graph: MainGraph;
     constructor(state: State, viewManager: ViewManager) {
         super(document.querySelector("#main_view") ?? fail());
@@ -32,7 +31,8 @@ export class MainView extends View {
                 const board = data.cells[0].data ?? fail();
                 state.setFocus({ kind: "board", value: board.toString() });
                 this.#search_board.value = board.toString();
-                // TODO: maybe keep the school if this didn't change?
+                // Even if the school didn't change, we want to focus on the board.
+                // A board can only be focused if there's no selected school.
                 this.#search_school.value = "";
             } else if (this.#lastSearching == "schools") {
                 console.log("CURRENTLY Searching Schools")
@@ -58,7 +58,6 @@ export class MainView extends View {
             this.updateFromState(state);
         });
         this.#search_board.addEventListener("focus", () => {
-            window.clearTimeout(this.#hidingTimer);
             this.#lastSearching = "boards";
             this.#search_board.value = "";
             const y = this.#search_board.getBoundingClientRect().bottom;
@@ -66,29 +65,18 @@ export class MainView extends View {
             this.#tableElement.style.transform = `translate(0px, ${y}px)`;
             viewManager.updateFromState(state);
         });
-        this.#search_board.addEventListener("focusout", () => {
-            this.#hidingTimer = window.setTimeout(() => {
-                this.#tableElement.style.visibility = "hidden";
-            }, 0);
-        });
 
         this.#search_school = document.getElementById("search_school") as HTMLInputElement ?? fail();
         this.#search_school.addEventListener("input", () => {
             this.updateFromState(state);
         });
         this.#search_school.addEventListener("focus", () => {
-            window.clearTimeout(this.#hidingTimer);
             this.#lastSearching = "schools";
             this.#search_school.value = "";
             const y = this.#search_school.getBoundingClientRect().bottom;
             this.#tableElement.style.visibility = "visible";
             this.#tableElement.style.transform = `translate(0px, ${y}px)`;
             viewManager.updateFromState(state);
-        });
-        this.#search_school.addEventListener("focusout", () => {
-            this.#hidingTimer = window.setTimeout(() => {
-                this.#tableElement.style.visibility = "hidden";
-            }, 0);
         });
 
         document.addEventListener("keydown", (e) => {
@@ -109,22 +97,10 @@ export class MainView extends View {
         })
     }
 
-    paginationFocusHack() {
-        console.log("FOCUS HACK.")
-        const pages = document.querySelectorAll(".gridjs-pages") ?? fail();
-        pages.forEach(x => {
-            x.addEventListener("click", () => {
-                console.log("focus hack: ", this.#lastSearching)
-                window.clearTimeout(this.#hidingTimer);
-            })
-        })
-    }
-
     updateFromState(state: State): void {
         this.#graph.updateFromState();
         if (this.#lastSearching == "schools") {
-            // TODO: does this need to be lower case?
-            const query = this.#search_school.value.toLocaleLowerCase();
+            const query = this.#search_school.value;
             console.log("Focused school: ", query);
             const rows = state.getFilteredSchools(query, this.#search_board.value);
             console.log("BEFORE UPDATE");
@@ -142,11 +118,8 @@ export class MainView extends View {
                 }],
                 data: rows.map(x => [x.school, x.board, x.address]),
             }).forceRender();
-            this.paginationFocusHack();
-            console.log("AFTER");
         } else if (this.#lastSearching == "boards") {
-            const query = this.#search_board.value.toLocaleLowerCase();
-            console.log("Focused board: ", query);
+            const query = this.#search_board.value;
             const rows = state.getFilteredBoards(query);
             this.#grid.updateConfig({
                 columns: [{
