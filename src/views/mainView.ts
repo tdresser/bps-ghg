@@ -30,7 +30,7 @@ export class MainView extends View {
                 const board = data.cells[0].data ?? fail();
                 state.setFocus({ kind: FocusType.Board, value: board.toString() });
                 this.#search_board.value = board.toString();
-                // TODO.
+                // TODO: maybe keep the school if this didn't change?
                 this.#search_school.value = "";
             } else if (this.#lastSearching == "schools"){
                 console.log("CURRENTLY Searching Schools")
@@ -51,6 +51,7 @@ export class MainView extends View {
         });
         this.#search_board.addEventListener("focus", () => {
             this.#lastSearching = "boards";
+            this.#search_board.value = "";
             const y = this.#search_board.getBoundingClientRect().bottom;
             this.#tableElement.style.visibility = "visible";
             this.#tableElement.style.transform = `translate(0px, ${y}px)`;
@@ -68,6 +69,7 @@ export class MainView extends View {
         });
         this.#search_school.addEventListener("focus", () => {
             this.#lastSearching = "schools";
+            this.#search_school.value = "";
             const y = this.#search_school.getBoundingClientRect().bottom;
             this.#tableElement.style.visibility = "visible";
             this.#tableElement.style.transform = `translate(0px, ${y}px)`;

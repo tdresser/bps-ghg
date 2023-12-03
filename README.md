@@ -1,8 +1,6 @@
 # TODO
 - Handle years.
 - Set board if you select school.
-- Clear school if you change board.
-- Filter schools by board.
 - Try Paquet
 
 # Setup

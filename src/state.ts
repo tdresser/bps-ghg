@@ -105,13 +105,17 @@ export class State {
     }
 
     async init() {
+        // Restrict to 2020 data to avoid duplicates.
+        // TODO: maybe use max year instead of hard coding.
         await yieldy()
-        this.#schoolSearcher = new fuzzysearch.Searcher(this.#schoolRows, {
+        this.#schoolSearcher = new fuzzysearch.Searcher(
+            this.#schoolRows.filter(x => x.year == 2020), {
             keySelector: d => d.board + " " + d.school
         });
 
         await yieldy()
-        this.#boardSearcher = new fuzzysearch.Searcher(this.#boardRows, {
+        this.#boardSearcher = new fuzzysearch.Searcher(
+            this.#boardRows.filter(x => x.year == 2020), {
             keySelector: d => d.board
         });
     }
