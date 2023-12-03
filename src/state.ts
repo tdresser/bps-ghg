@@ -34,7 +34,7 @@ export class BoardRow {
     area: number;
 
 
-    constructor(d:BoardRowData) {
+    constructor(d: BoardRowData) {
         this.year = d.year;
         this.board = d.board;
         this.ghg_kg = d.ghg_kg;
@@ -53,7 +53,7 @@ export class SchoolRow extends BoardRow {
     address: string;
     city: string;
 
-    constructor(d:SchoolRowData) {
+    constructor(d: SchoolRowData) {
         super(d);
         this.school = d.school;
         this.address = d.address;
@@ -82,16 +82,13 @@ export interface BoardFocus {
 type Focus = SchoolFocus | BoardFocus | NoFocus;
 
 export class State {
-    #searchQuery: string;
     #focus: Focus = { kind: FocusType.None };
-    #aggregateSchoolBoards = true;
     #schoolRows: SchoolRow[];
     #boardRows: BoardRow[];
     #schoolSearcher: Searcher<SchoolRow> = new fuzzysearch.Searcher([]);
     #boardSearcher: Searcher<BoardRow> = new fuzzysearch.Searcher([]);
 
     constructor(schoolRows: SchoolRow[]) {
-        this.#searchQuery = "";
         this.#schoolRows = schoolRows;
 
         this.#boardRows = Array.from(d3.rollup(this.#schoolRows, d => {
@@ -119,29 +116,27 @@ export class State {
         });
     }
 
-    getFilteredRows() {
-        const aggregate = this.#aggregateSchoolBoards;
-        let unfiltered = [];
+    getFilteredSchoolNames(query: string): string[] {
+        let searchResults: SchoolRow[] = [];
 
-        if (this.#searchQuery == "") {
-            unfiltered = aggregate ? this.#boardRows : this.#schoolRows;
+        if (query == "") {
+            searchResults = this.#schoolRows;
         } else {
-            const searcher = aggregate ? this.#boardSearcher : this.#schoolSearcher;
-            unfiltered = searcher.search(this.#searchQuery);
+            searchResults = this.#schoolSearcher.search(query);
         }
-        if (aggregate) {
-            console.log("Aggregating, so no filter");
-            // We should be selecting boards, which don't get filtered.
-            return unfiltered;
-        } else {
-            // We're selecting schools, and might be filtering.
-            if (this.focus().kind == FocusType.Board) {
-                console.log("FILTERING")
-                return unfiltered.filter(x => x.board == (this.focus() as BoardFocus).value)
-            }
-            return unfiltered;
+        // If there's a focused board, filter by it.
+        if (this.#focus.kind == FocusType.Board) {
+            return (searchResults.filter(x => x.board == (this.#focus as BoardFocus).value)
+                .map(x => x.name()))
         }
+        return searchResults.map(x => x.name());
+    }
 
+    getFilteredBoardNames(searchQuery: string): string[] {
+        if (searchQuery == "") {
+            return this.#boardRows.map(x => x.name());
+        }
+        return this.#boardSearcher.search(searchQuery).map(x => x.name());
     }
 
     setFocus(focus: Focus) {
@@ -150,18 +145,6 @@ export class State {
 
     focus() {
         return this.#focus;
-    }
-
-    setSearchQuery(query: string) {
-        this.#searchQuery = query;
-    }
-
-    setAggregateSchoolboards(aggregate: boolean) {
-        this.#aggregateSchoolBoards = aggregate;
-    }
-
-    aggregateSchoolBoards(): boolean {
-        return this.#aggregateSchoolBoards;
     }
 }
 

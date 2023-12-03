@@ -10,9 +10,11 @@ export class MainView extends View {
     #tableElement: HTMLElement;
     #search_school: HTMLInputElement;
     #search_board: HTMLInputElement;
+    #lastSearching: 'schools' | 'boards';
     constructor(state: State, viewManager: ViewManager) {
         super(document.querySelector("#main_view") ?? fail());
         this.#tableElement = document.querySelector("#table_container") ?? fail();
+        this.#lastSearching = "schools";
         this.#grid = new Grid({
             data: [],
             pagination: {
@@ -21,15 +23,23 @@ export class MainView extends View {
         });
         this.#grid.render(this.#tableElement);
         this.#grid.on('rowClick', (_, data) => {
-            console.log("ROW CLICK");
-            if (state.aggregateSchoolBoards()) {
+            console.log("ROW CLICK, searching: ", this.#lastSearching);
+            console.log(document.activeElement);
+            if (this.#lastSearching == "boards") {
+                console.log("CURRENTLY Searching Boards")
                 const board = data.cells[0].data ?? fail();
                 state.setFocus({ kind: FocusType.Board, value: board.toString() });
+                this.#search_board.value = board.toString();
                 // TODO.
                 this.#search_school.value = "";
-            } else {
+            } else if (this.#lastSearching == "schools"){
+                console.log("CURRENTLY Searching Schools")
                 const school = data.cells[0].data ?? fail();
                 state.setFocus({ kind: FocusType.School, value: school.toString() });
+                // TODO: set the board appropriately.
+                this.#search_school.value = school.toString();
+            } else {
+                throw("Should only be able to search schools or boards.")
             }
             console.log(state);
             viewManager.render(state);
@@ -37,11 +47,10 @@ export class MainView extends View {
 
         this.#search_board = document.getElementById("search_board") as HTMLInputElement ?? fail();
         this.#search_board.addEventListener("input", () => {
-            state.setSearchQuery(this.#search_board.value.toLocaleLowerCase());
             this.render(state);
         });
         this.#search_board.addEventListener("focus", () => {
-            state.setAggregateSchoolboards(true);
+            this.#lastSearching = "boards";
             const y = this.#search_board.getBoundingClientRect().bottom;
             this.#tableElement.style.visibility = "visible";
             this.#tableElement.style.transform = `translate(0px, ${y}px)`;
@@ -55,11 +64,10 @@ export class MainView extends View {
 
         this.#search_school = document.getElementById("search_school") as HTMLInputElement ?? fail();
         this.#search_school.addEventListener("input", () => {
-            state.setSearchQuery(this.#search_school.value.toLocaleLowerCase());
             this.render(state);
         });
         this.#search_school.addEventListener("focus", () => {
-            state.setAggregateSchoolboards(false);
+            this.#lastSearching = "schools";
             const y = this.#search_school.getBoundingClientRect().bottom;
             this.#tableElement.style.visibility = "visible";
             this.#tableElement.style.transform = `translate(0px, ${y}px)`;
@@ -93,22 +101,21 @@ export class MainView extends View {
     }
 
     render(state: State): void {
-        let filteredRows = state.getFilteredRows();
+        let filteredRows: string[] = [];
+        if (this.#lastSearching == "schools") {
+            // TODO: does this need to be lower case?
+            const query = this.#search_school.value.toLocaleLowerCase();
+            console.log("Focused school: ", query);
+            filteredRows = state.getFilteredSchoolNames(query);
+        } else if (this.#lastSearching == "boards") {
+            const query = this.#search_board.value.toLocaleLowerCase();
+            console.log("Focused board: ", query);
+            filteredRows = state.getFilteredBoardNames(query);
+        }
+
         console.log("NUM ROWS: ", filteredRows.length);
         this.#grid.updateConfig({
-            data: filteredRows.map(x => [x.name()]),
+            data: filteredRows.map(x => [x]),
         }).forceRender();
-        switch (state.focus().kind) {
-            case FocusType.School:
-                this.#search_school.value = (state.focus() as SchoolFocus).value;
-                break;
-            case FocusType.Board:
-                this.#search_board.value = (state.focus() as BoardFocus).value;
-                break;
-            case FocusType.None:
-                this.#search_board.value = ""
-                this.#search_school.value = ""
-                break;
-        }
     }
 }
