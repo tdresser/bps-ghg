@@ -16,12 +16,12 @@ interface BoardRowData {
     ghg_kg: number;
     ei: number;
     hdd: number;
+    area: number;
 }
 
 interface SchoolRowData extends BoardRowData {
     school: string;
     address: string;
-    area: number;
     city: string;
 }
 
@@ -31,6 +31,8 @@ export class BoardRow {
     ghg_kg: number;
     ei: number;
     hdd: number;
+    area: number;
+
 
     constructor(d:BoardRowData) {
         this.year = d.year;
@@ -38,6 +40,7 @@ export class BoardRow {
         this.ghg_kg = d.ghg_kg;
         this.ei = d.ei;
         this.hdd = d.hdd;
+        this.area = d.area;
     }
 
     name() {
@@ -48,14 +51,12 @@ export class BoardRow {
 export class SchoolRow extends BoardRow {
     school: string;
     address: string;
-    area: number;
     city: string;
 
     constructor(d:SchoolRowData) {
         super(d);
         this.school = d.school;
         this.address = d.address;
-        this.area = d.area;
         this.city = d.city;
     }
 
@@ -100,7 +101,8 @@ export class State {
                 board: d[0].board,
                 year: d[0].year,
                 ei: 0,
-                hdd: 0
+                hdd: 0,
+                area: 0,
             });
         }, d => d.board + d.year).values());
     }
