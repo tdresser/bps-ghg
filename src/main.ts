@@ -13,7 +13,6 @@ let state: State | null = null;
 
 async function main() {
   const body = (await fetch(csv)).body || fail();
-  //console.log(await body.getReader().read());
   const ds = new DecompressionStream("gzip");
   const reader = body.pipeThrough(ds).getReader();
   let decompressedString = "";

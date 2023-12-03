@@ -128,7 +128,6 @@ export class State {
         } else {
             searchResults = this.#schoolSearcher.search(query);
         }
-        console.log("BOARD IS: ", board)
         // If there's a board, filter by it.
         if (board && board.length > 0) {
             return (searchResults.filter(x => x.board == board))

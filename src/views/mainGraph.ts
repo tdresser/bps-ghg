@@ -62,17 +62,11 @@ export class MainGraph {
             return;
         }
 
-        // https://stackoverflow.com/questions/16919280/how-to-update-axis-using-d3-js
-
-        // Add Y axis
         // TODO: pick right data!
         let domainMax = 0;
-        console.log(schoolRows);
-        console.log(boardRows)
         if (schoolRows && schoolRows.length > 0) {
             domainMax = d3.max(schoolRows, function (d) { return +d.ghg_kg; }) ?? fail()
         }
-        console.log("POST SCHOOLS MAX: ", domainMax)
         if (boardRows && boardRows.length > 0) {
             domainMax = Math.max(domainMax,
                 d3.max(boardRows, function (d) { return +d.ghg_kg; }) ?? fail());
@@ -81,10 +75,8 @@ export class MainGraph {
         this.#yScale = d3.scaleLinear()
             .domain([0, domainMax])
             .range([this.#rect.height, 0])
-        console.log("Domain max: ", domainMax)
         updateYAxis(this.#yScale, this.#yAxisEl);
 
-        console.log("DRAWING LINE");
         // Add the line
         this.#path.datum(boardRows)
             .attr("fill", "none")

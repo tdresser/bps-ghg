@@ -27,7 +27,6 @@ export class MainView extends View {
         this.#grid.on('rowClick', (_, data) => {
             this.#tableElement.style.visibility = "hidden";
             if (this.#lastSearching == "boards") {
-                console.log("CURRENTLY Searching Boards")
                 const board = data.cells[0].data ?? fail();
                 state.setFocus({ kind: "board", value: board.toString() });
                 this.#search_board.value = board.toString();
@@ -35,7 +34,6 @@ export class MainView extends View {
                 // A board can only be focused if there's no selected school.
                 this.#search_school.value = "";
             } else if (this.#lastSearching == "schools") {
-                console.log("CURRENTLY Searching Schools")
                 const school = data.cells[0].data ?? fail();
                 // We stored the board/address in a second/third hidden column.
                 const board = data.cells[1].data ?? fail();
@@ -87,13 +85,20 @@ export class MainView extends View {
         });
 
         this.el().addEventListener("click", (e) => {
-            console.log("CLICKY");
             if ((e.target as HTMLElement).tagName == "LABEL") {
                 this.#search_board.blur();
                 this.#search_school.blur();
+                switch (state.focus().kind) {
+                    case "none":
+                        this.#search_board.value = "";
+                        this.#search_school.value = "";
+                        break;
+                    case "board":
+                        this.#search_school.value = "";
+                        break;
+                }
                 this.#tableElement.style.visibility = "hidden";
             }
-            console.log((e.target as HTMLElement).tagName);
         })
     }
 
@@ -101,9 +106,7 @@ export class MainView extends View {
         this.#graph.updateFromState();
         if (this.#lastSearching == "schools") {
             const query = this.#search_school.value;
-            console.log("Focused school: ", query);
             const rows = state.getFilteredSchools(query, this.#search_board.value);
-            console.log("BEFORE UPDATE");
             this.#grid.updateConfig({
                 columns: [{
                     hidden: false,

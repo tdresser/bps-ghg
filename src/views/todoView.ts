@@ -15,7 +15,6 @@ export class TodoView extends View {
     }
     updateFromState(state: State): void {
         const focus = state.focus() as BoardFocus;
-        console.log("FOCUS: " + focus.value)
         this.#boardName.innerText = "Board: " + focus.value;
     }
 }
