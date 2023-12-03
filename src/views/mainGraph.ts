@@ -10,13 +10,16 @@ function updateYAxis(
 }
 
 const MARGIN = { top: 10, right: 30, bottom: 30, left: 60 };
+type Selection<T extends d3.BaseType> = d3.Selection<T, unknown, HTMLElement, any>;
+
 export class MainGraph {
     #state: State;
     #xScale: d3.ScaleLinear<number, number, never>;
     #yScale: d3.ScaleLinear<number, number, never>;
-    #yAxisEl: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
-    #svg: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
+    #yAxisEl: Selection<SVGGElement>;
+    #svg: Selection<SVGGElement>;
     #rect: DOMRect;
+    #path: Selection<SVGPathElement>;
 
     constructor(containerSelector: string,
         state: State) {
@@ -34,15 +37,21 @@ export class MainGraph {
         this.#xScale = d3.scaleLinear()
             .domain([2015, 2020])
             .range([0, this.#rect.width]);
+
+        this.#svg.append("g")
+            .attr("transform", `translate(0, ${this.#rect.height})`)
+            .call(d3.axisBottom(this.#xScale)
+                .tickFormat(x => Math.round(x.valueOf()).toString())
+            );
+
         // Temporary scale.
         this.#yScale = d3.scaleLinear()
             .domain([0, 1])
             .range([this.#rect.height, 0]);
         this.#yAxisEl = this.#svg.append("g")
         updateYAxis(this.#yScale, this.#yAxisEl);
-        this.#svg.append("g")
-            .attr("transform", `translate(0, ${this.#rect.height})`)
-            .call(d3.axisBottom(this.#xScale));
+
+        this.#path = this.#svg.append("path")
     }
     updateFromState() {
         const schoolRows = this.#state.focusedSchoolRows();
@@ -77,8 +86,7 @@ export class MainGraph {
 
         console.log("DRAWING LINE");
         // Add the line
-        this.#svg.append("path")
-            .datum(boardRows)
+        this.#path.datum(boardRows)
             .attr("fill", "none")
             .attr("stroke", "steelblue")
             .attr("stroke-width", 1.5)
