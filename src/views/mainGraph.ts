@@ -2,6 +2,9 @@ import * as d3 from 'd3';
 import { State } from '../state';
 import { fail } from '../util';
 
+const YEARS = [2015, 2016, 2017, 2018, 2019, 2020];
+const MARGIN = { top: 10, right: 30, bottom: 30, left: 60 };
+
 function updateYAxis(
     yScale: d3.ScaleLinear<number, number, never>,
     yAxisEl: d3.Selection<SVGGElement, unknown, HTMLElement, any>) {
@@ -9,17 +12,17 @@ function updateYAxis(
     yAxis(yAxisEl);
 }
 
-const MARGIN = { top: 10, right: 30, bottom: 30, left: 60 };
 type Selection<T extends d3.BaseType> = d3.Selection<T, unknown, HTMLElement, any>;
 
 export class MainGraph {
     #state: State;
-    #xScale: d3.ScaleLinear<number, number, never>;
     #yScale: d3.ScaleLinear<number, number, never>;
+    xScale: d3.ScaleBand<number>;
     #yAxisEl: Selection<SVGGElement>;
     #svg: Selection<SVGGElement>;
     #rect: DOMRect;
     #path: Selection<SVGPathElement>;
+    #bars: Selection<SVGGElement>;
 
     constructor(containerSelector: string,
         state: State) {
@@ -34,13 +37,17 @@ export class MainGraph {
 
         this.#rect.width = this.#rect.width - MARGIN.left - MARGIN.right;
         this.#rect.height = this.#rect.height - MARGIN.top - MARGIN.bottom;
-        this.#xScale = d3.scaleLinear()
-            .domain([2015, 2020])
-            .range([0, this.#rect.width]);
+
+        // @ts-ignore
+        this.xScale = d3.scaleBand()
+            .range([0, this.#rect.width])
+            // @ts-ignore
+            .domain(YEARS)
+            .padding(0.2);
 
         this.#svg.append("g")
             .attr("transform", `translate(0, ${this.#rect.height})`)
-            .call(d3.axisBottom(this.#xScale)
+            .call(d3.axisBottom(this.xScale)
                 .tickFormat(x => Math.round(x.valueOf()).toString())
             );
 
@@ -52,6 +59,7 @@ export class MainGraph {
         updateYAxis(this.#yScale, this.#yAxisEl);
 
         this.#path = this.#svg.append("path")
+        this.#bars = this.#svg.append("g")
     }
     updateFromState() {
         const schoolRows = this.#state.focusedSchoolRows();
@@ -84,9 +92,22 @@ export class MainGraph {
             .attr("stroke-width", 1.5)
             .attr("d", d3.line()
                 // @ts-ignore
-                .x(d => this.#xScale(d.year))
+                .x(d => this.xScale(d.year) + this.xScale.bandwidth()/2)
                 // @ts-ignore
                 .y(d => this.#yScale(d.ghg_kg)) as any
             );
+
+        if (schoolRows) {
+            console.log("WE HAVE SCHOOL ROWS");
+            this.#bars.selectAll("rect")
+                .data(schoolRows)
+                .join("rect")
+                // @ts-ignore
+                .attr("x", d => this.xScale(d.year))
+                .attr("y", d => this.#yScale(d.ghg_kg))
+                .attr("width", this.xScale.bandwidth())
+                .attr("height", d => this.#rect.height - this.#yScale(d.ghg_kg))
+                .attr("fill", "#69b3a2")
+        }
     }
 }

@@ -1,6 +1,6 @@
 import * as fuzzysearch from 'fast-fuzzy';
 import * as d3 from 'd3';
-import { yieldy } from './util';
+import { fail, yieldy } from './util';
 
 export type Searcher<T extends BoardRow> = fuzzysearch.Searcher<T, fuzzysearch.FullOptions<T>>;
 
@@ -150,7 +150,7 @@ export class State {
         return this.#focus;
     }
 
-    focusedSchoolRows():SchoolRow[] | null{
+    focusedSchoolRows(): SchoolRow[] | null {
         if (this.#focus.kind != "school") {
             null;
         }
@@ -158,12 +158,27 @@ export class State {
         return this.#schoolRows.filter(x => x.address == address);
     }
 
-    focusedBoardRows():BoardRow[] | null{
-        if (this.#focus.kind != "board") {
-            null;
+    focusedBoardRows(): BoardRow[] | null {
+        switch (this.#focus.kind) {
+            case "none":
+                return null;
+            case "board": {
+                const board = (this.#focus as BoardFocus).value;
+                return this.#boardRows.filter(x => x.board == board);
+            }
+            case "school": {
+                const focus = (this.#focus as SchoolFocus);
+                const schoolName = focus.schoolName;
+                const address = focus.address;
+
+                const school = this.#schoolRows.find(
+                    x => x.school == schoolName && x.address == address) ?? fail("Can't find school");
+                const board = school.board;
+
+                return this.#boardRows.filter(
+                    x => x.board == board)
+            }
         }
-        const board = (this.#focus as BoardFocus).value;
-        return this.#boardRows.filter(x => x.board == board);
     }
 }
 

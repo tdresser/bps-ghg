@@ -1,5 +1,4 @@
 # TODO
-- Fix pagination.
 - When you clear the school, we should draw the board thing.
 - Graph things.
 - Try Paquet

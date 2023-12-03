@@ -1,8 +1,12 @@
 import { State } from "./state";
 import { ViewManager } from "./views/viewManager";
 
-export function fail(): never {
-    throw new Error("missing element");
+export function fail(message?:string): never {
+    if (message) {
+        throw new Error("Failure");
+    } else {
+        throw new Error(message);
+    }
 }
 
 export function yieldy() {
