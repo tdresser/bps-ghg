@@ -19,11 +19,13 @@ export class ViewManager {
     }
 
     activeView(state:State):View {
-        for (const view of this.#views) {
+        // TODO.
+        return this.#views[0];
+        /*for (const view of this.#views) {
             if (view.key() == state.focus().kind) {
                 return view;
             }
-        }
+        }*/
         throw("Failure to find view");
     }
 }

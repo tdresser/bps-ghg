@@ -35,7 +35,7 @@ type Focus = SchoolFocus | BoardFocus | NoFocus;
 
 export class State {
     #searchQuery: string;
-    #focus: Focus = {kind:FocusType.None};
+    #focus: Focus = { kind: FocusType.None };
     #aggregateSchoolBoards = true;
     #columns: Column[] = [
         {
@@ -77,11 +77,27 @@ export class State {
 
     getFilteredRows() {
         const aggregate = this.#aggregateSchoolBoards;
+        let unfiltered = [];
+
         if (this.#searchQuery == "") {
-            return aggregate ? this.#boardRows : this.#schoolRows;
+            unfiltered = aggregate ? this.#boardRows : this.#schoolRows;
+        } else {
+            const searcher = aggregate ? this.#boardSearcher : this.#schoolSearcher;
+            unfiltered = searcher.search(this.#searchQuery);
         }
-        const searcher = aggregate ? this.#boardSearcher : this.#schoolSearcher;
-        return searcher.search(this.#searchQuery);
+        if (aggregate) {
+            console.log("Aggregating, so no filter");
+            // We should be selecting boards, which don't get filtered.
+            return unfiltered;
+        } else {
+            // We're selecting schools, and might be filtering.
+            if (this.focus().kind == FocusType.Board) {
+                console.log("FILTERING")
+                return unfiltered.filter(x => x.board == (this.focus() as BoardFocus).value)
+            }
+            return unfiltered;
+        }
+
     }
 
     columns() {
@@ -104,10 +120,9 @@ export class State {
         this.#aggregateSchoolBoards = aggregate;
         this.#columns[SCHOOL_COLUMN_INDEX].hidden = aggregate;
         this.#columns[BOARD_COLUMN_INDEX].hidden = !aggregate;
-
     }
 
-    aggregateSchoolBoards():boolean {
+    aggregateSchoolBoards(): boolean {
         return this.#aggregateSchoolBoards;
     }
 }

@@ -1,6 +1,9 @@
 # TODO
-- Replace City with School Board
+- Update spreadsheet.
 - Make Row a class.
+- Set board if you select school.
+- Clear school if you change board.
+- Filter schools by board.
 
 # Setup
 Need to update gridjs package.js.
