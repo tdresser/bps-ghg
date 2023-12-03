@@ -12,21 +12,33 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  padding: 2em;
-}
-
 #table_container {
-  margin-top:2em;
+  visibility: hidden;
+  padding:0.5em;
+  position:absolute;
+  top:0;
+  left:0;
 }
 
-#search_container {
+.gridjs {
+  width: auto !important;
+}
+
+thead {
+  display:none;
+}
+
+.search_box {
   display:flex;
+  margin: 1em;
+}
+
+label {
+  min-width: 4em;
 }
 
 input {
-  margin-left:1em;
-  margin-right:1em;
+  flex-grow: 1;
 }
 
 #search {

@@ -1,10 +1,11 @@
 import { BoardFocus, State } from "../state";
 import { fail, makeBack } from "../util";
-import { View, ViewType } from "./view"
+import { View, FocusType } from "./view"
 import { ViewManager } from "./viewManager";
 
-export class BoardView extends View {
-    static key = ViewType.Board;
+// Placeholder for the second view.
+export class TodoView extends View {
+    static key = FocusType.Todo;
 
     #boardName: HTMLElement;
     constructor(state:State, viewManager: ViewManager) {
@@ -19,6 +20,6 @@ export class BoardView extends View {
         this.#boardName.innerText = "Board: " + focus.value;
     }
     key() {
-        return BoardView.key;
+        return TodoView.key;
     }
 }

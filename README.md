@@ -1,5 +1,6 @@
 # TODO
 - Replace City with School Board
+- Make Row a class.
 
 # Setup
 Need to update gridjs package.js.
