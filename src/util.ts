@@ -15,7 +15,7 @@ export function yieldy() {
 
 export function makeBack(x:Element, state:State, viewManager:ViewManager) {
     x.addEventListener("click", () => {
-        state.setFocus({kind:"none"})
+        state.setViewType("main");
         viewManager.updateFromState(state);
     })
 }

@@ -4,14 +4,14 @@ import { fail } from '../util';
 import { Selection } from '../util';
 
 const YEAR = 2020;
-const MARGIN = { top: 10, right: 30, bottom: 30, left: 60 };
+const MARGIN = { top: 10, right: 10, bottom: 30, left: 10 };
 
 export class TodoGraph {
     #state: State;
     #yScale: d3.ScaleBand<number>;
-    #yAxisEl: Selection<SVGGElement>;
+    //#yAxisEl: Selection<SVGGElement>;
     #xScale: d3.ScaleLinear<number, number, never>;
-    #xAxisEl: Selection<SVGGElement>;
+    //#xAxisEl: Selection<SVGGElement>;
     #svg: Selection<SVGGElement>;
     #rect: DOMRect;
     #bars: Selection<SVGGElement>;
@@ -32,7 +32,7 @@ export class TodoGraph {
         this.#yScale = d3.scaleBand()
             .range([0, this.#rect.height])
             .domain(boardNames)
-            .padding(0.2);
+            .padding(0.1);
 
         // TODO: scale.
         this.#xScale = d3.scaleLinear()
@@ -51,13 +51,14 @@ export class TodoGraph {
         this.#rect.width = this.#rect.width - MARGIN.left - MARGIN.right;
         this.#rect.height = this.#rect.height - MARGIN.top - MARGIN.bottom;
 
-        this.#yAxisEl = this.#svg.append("g")
-            .call(d3.axisLeft(this.#yScale)
-                .tickFormat(x => Math.round(x.valueOf()).toString()));
+        /*this.#yAxisEl = this.#svg.append("g")
+            .call(d3.axisLeft(this.#yScale));*/
 
-        this.#xAxisEl = this.#svg.append("g")
+        //this.#xAxisEl =
+        this.#svg.append("g")
             .attr("transform", `translate(0, ${this.#rect.height})`)
-            .call(d3.axisBottom(this.#xScale));
+            .call(d3.axisBottom(this.#xScale)
+                .tickFormat(x => Math.round(x.valueOf() / 10000).toString()));
 
         /*const yAxis = d3.axisLeft(this.#yScale);
         yAxis(this.#yAxisEl);

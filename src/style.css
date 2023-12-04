@@ -54,6 +54,10 @@ tr:hover td {
   display:none;
 }
 
-#main_graph, #todo_graph {
+#main_graph {
   height:300px;
+}
+
+#todo_graph {
+  height:600px;
 }
