@@ -84,6 +84,12 @@ export class MainView extends View {
             }
         });
 
+        const switch_views = document.getElementById("switch_views") ?? fail();
+        switch_views.addEventListener("click", () => {
+            state.setViewType("todo");
+            viewManager.updateFromState(state);
+        })
+
         this.el().addEventListener("click", (e) => {
             if ((e.target as HTMLElement).tagName == "LABEL") {
                 this.#search_board.blur();

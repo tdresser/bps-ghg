@@ -18,14 +18,12 @@ export class ViewManager {
         currentView.updateFromState(state);
     }
 
-    activeView(_:State):View {
-        // TODO.
-        return this.#views[0];
-        /*for (const view of this.#views) {
-            if (view.key() == state.focus().kind) {
-                return view;
-            }
-        }*/
-        throw("Failure to find view");
+    activeView(state:State):View {
+        switch (state.viewType()) {
+            case "main":
+                return this.#views[0];
+            case "todo":
+                return this.#views[1];
+        }
     }
 }

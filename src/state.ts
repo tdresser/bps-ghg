@@ -80,9 +80,11 @@ export interface BoardFocus {
 }
 
 type Focus = SchoolFocus | BoardFocus | NoFocus;
+type ViewType = "main" | "todo";
 
 export class State {
     #focus: Focus = { kind: "none" };
+    #viewType: ViewType;
     #schoolRows: SchoolRow[];
     #boardRows: BoardRow[];
     #schoolSearcher: Searcher<SchoolRow> = new fuzzysearch.Searcher([]);
@@ -90,6 +92,7 @@ export class State {
 
     constructor(schoolRows: SchoolRow[]) {
         this.#schoolRows = schoolRows;
+        this.#viewType = "main";
 
         this.#boardRows = Array.from(d3.rollup(this.#schoolRows, d => {
             // TODO: Caleb to fill this out.
@@ -179,6 +182,13 @@ export class State {
                     x => x.board == board)
             }
         }
+    }
+
+    setViewType(view: ViewType) {
+        this.#viewType = view;
+    }
+    viewType() {
+        return this.#viewType;
     }
 }
 
