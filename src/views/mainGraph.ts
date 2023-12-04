@@ -1,23 +1,15 @@
 import * as d3 from 'd3';
 import { State } from '../state';
 import { fail } from '../util';
+import { Selection } from '../util';
 
 const YEARS = [2015, 2016, 2017, 2018, 2019, 2020];
 const MARGIN = { top: 10, right: 30, bottom: 30, left: 60 };
 
-function updateYAxis(
-    yScale: d3.ScaleLinear<number, number, never>,
-    yAxisEl: d3.Selection<SVGGElement, unknown, HTMLElement, any>) {
-    const yAxis = d3.axisLeft(yScale);
-    yAxis(yAxisEl);
-}
-
-type Selection<T extends d3.BaseType> = d3.Selection<T, unknown, HTMLElement, any>;
-
 export class MainGraph {
     #state: State;
     #yScale: d3.ScaleLinear<number, number, never>;
-    xScale: d3.ScaleBand<number>;
+    #xScale: d3.ScaleBand<number>;
     #yAxisEl: Selection<SVGGElement>;
     #svg: Selection<SVGGElement>;
     #rect: DOMRect;
@@ -39,7 +31,7 @@ export class MainGraph {
         this.#rect.height = this.#rect.height - MARGIN.top - MARGIN.bottom;
 
         // @ts-ignore
-        this.xScale = d3.scaleBand()
+        this.#xScale = d3.scaleBand()
             .range([0, this.#rect.width])
             // @ts-ignore
             .domain(YEARS)
@@ -47,7 +39,7 @@ export class MainGraph {
 
         this.#svg.append("g")
             .attr("transform", `translate(0, ${this.#rect.height})`)
-            .call(d3.axisBottom(this.xScale)
+            .call(d3.axisBottom(this.#xScale)
                 .tickFormat(x => Math.round(x.valueOf()).toString())
             );
 
@@ -56,7 +48,8 @@ export class MainGraph {
             .domain([0, 1])
             .range([this.#rect.height, 0]);
         this.#yAxisEl = this.#svg.append("g")
-        updateYAxis(this.#yScale, this.#yAxisEl);
+        const yAxis = d3.axisLeft(this.#yScale);
+        yAxis(this.#yAxisEl);
 
         this.#path = this.#svg.append("path")
         this.#bars = this.#svg.append("g")
@@ -83,7 +76,9 @@ export class MainGraph {
         this.#yScale = d3.scaleLinear()
             .domain([0, domainMax])
             .range([this.#rect.height, 0])
-        updateYAxis(this.#yScale, this.#yAxisEl);
+        const yAxis = d3.axisLeft(this.#yScale);
+        yAxis(this.#yAxisEl);
+
 
         // Add the line
         this.#path.datum(boardRows)
@@ -92,7 +87,7 @@ export class MainGraph {
             .attr("stroke-width", 1.5)
             .attr("d", d3.line()
                 // @ts-ignore
-                .x(d => this.xScale(d.year) + this.xScale.bandwidth()/2)
+                .x(d => this.#xScale(d.year) + this.#xScale.bandwidth()/2)
                 // @ts-ignore
                 .y(d => this.#yScale(d.ghg_kg)) as any
             );
@@ -103,9 +98,9 @@ export class MainGraph {
                 .data(schoolRows)
                 .join("rect")
                 // @ts-ignore
-                .attr("x", d => this.xScale(d.year))
+                .attr("x", d => this.#xScale(d.year))
                 .attr("y", d => this.#yScale(d.ghg_kg))
-                .attr("width", this.xScale.bandwidth())
+                .attr("width", this.#xScale.bandwidth())
                 .attr("height", d => this.#rect.height - this.#yScale(d.ghg_kg))
                 .attr("fill", "#69b3a2")
         }

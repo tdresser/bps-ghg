@@ -1,19 +1,24 @@
 import { BoardFocus, State } from "../state";
 import { fail, makeBack } from "../util";
+import { TodoGraph } from "./todoGraph";
 import { View } from "./view"
 import { ViewManager } from "./viewManager";
 
 // Placeholder for the second view.
 export class TodoView extends View {
-
     #boardName: HTMLElement;
+    #graph: TodoGraph | null = null;
     constructor(state:State, viewManager: ViewManager) {
-        super(document.querySelector("#board_view") as HTMLElement ?? fail());
+        super(document.querySelector("#todo_view") as HTMLElement ?? fail());
         this.#boardName = document.querySelector("#board_name") as HTMLElement ?? fail();
         const back = document.querySelector("#board_back") ?? fail();
         makeBack(back, state, viewManager);
     }
     updateFromState(state: State): void {
+        console.log("UPDATING FROM STATE")
+        if (this.#graph == null) {
+            this.#graph = new TodoGraph("#todo_graph", state);
+        }
         const focus = state.focus() as BoardFocus;
         this.#boardName.innerText = "Board: " + focus.value;
     }

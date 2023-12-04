@@ -54,6 +54,6 @@ tr:hover td {
   display:none;
 }
 
-#main_graph {
+#main_graph, #todo_graph {
   height:300px;
 }

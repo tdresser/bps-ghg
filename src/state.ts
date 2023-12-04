@@ -153,6 +153,10 @@ export class State {
         return this.#focus;
     }
 
+    allBoardRowsForYear(year: number): BoardRow[] {
+        return this.#boardRows.filter(x => x.year == year);
+    }
+
     focusedSchoolRows(): SchoolRow[] | null {
         if (this.#focus.kind != "school") {
             null;

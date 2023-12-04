@@ -19,3 +19,5 @@ export function makeBack(x:Element, state:State, viewManager:ViewManager) {
         viewManager.updateFromState(state);
     })
 }
+
+export type Selection<T extends d3.BaseType> = d3.Selection<T, unknown, HTMLElement, any>;
