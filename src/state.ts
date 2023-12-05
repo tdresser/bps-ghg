@@ -31,6 +31,9 @@ export class BoardRow {
     ei: number;
     hdd: number;
     area: number;
+    energy: number;
+    ghgiN: number; //weather normalized ghg emissions intensity
+    eiN: number; //weather normalized energy use intensity
 
 
     constructor(d: BoardRowData) {
@@ -40,6 +43,9 @@ export class BoardRow {
         this.ei = d.ei;
         this.hdd = d.hdd;
         this.area = d.area;
+        this.energy = 0;
+        this.ghgiN = 0;
+        this.eiN = 0;
     }
 
     name() {
@@ -48,6 +54,7 @@ export class BoardRow {
 }
 
 export class SchoolRow extends BoardRow {
+    
     school: string;
     address: string;
     city: string;
@@ -57,6 +64,9 @@ export class SchoolRow extends BoardRow {
         this.school = d.school;
         this.address = d.address;
         this.city = d.city;
+        this.energy = this.ei * this.area;
+        this.ghgiN = this.ghg_kg / this.area / this.hdd;
+        this.eiN = this.ei / this.hdd;
     }
 
     name() {
