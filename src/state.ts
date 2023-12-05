@@ -43,9 +43,9 @@ export class BoardRow {
         this.ei = d.ei;
         this.hdd = d.hdd;
         this.area = d.area;
-        this.energy = 0;
-        this.ghgiN = 0;
-        this.eiN = 0;
+        this.energy = this.ei * this.area;
+        this.ghgiN = this.ghg_kg / this.hdd / this.area;
+        this.eiN = this.ei / this.hdd;
     }
 
     name() {
@@ -64,9 +64,6 @@ export class SchoolRow extends BoardRow {
         this.school = d.school;
         this.address = d.address;
         this.city = d.city;
-        this.energy = this.ei * this.area;
-        this.ghgiN = this.ghg_kg / this.area / this.hdd;
-        this.eiN = this.ei / this.hdd;
     }
 
     name() {
@@ -97,6 +94,7 @@ export class State {
     #viewType: ViewType;
     #schoolRows: SchoolRow[];
     #boardRows: BoardRow[];
+    #sectorRows: BoardRow[];
     #schoolSearcher: Searcher<SchoolRow> = new fuzzysearch.Searcher([]);
     #boardSearcher: Searcher<BoardRow> = new fuzzysearch.Searcher([]);
 
@@ -104,18 +102,23 @@ export class State {
         this.#schoolRows = schoolRows;
         this.#viewType = "main";
 
-        this.#boardRows = Array.from(d3.rollup(this.#schoolRows, d => {
-            // TODO: Caleb to fill this out.
+        this.#boardRows = this.combineRows(this.#schoolRows);
+        this.#sectorRows = this.combineRows(this.#boardRows);
+    }
+
+    combineRows(data: BoardRow[]): BoardRow[] {
+        return Array.from(d3.rollup(data, d => {
             return new BoardRow({
                 ghg_kg: d3.sum(d, v => v.ghg_kg),
                 board: d[0].board,
                 year: d[0].year,
-                ei: 0,
-                hdd: 0,
-                area: 0,
+                ei: d3.sum(d, v => v.energy) / d3.sum(d, v=> v.area),
+                hdd: d[0].hdd,
+                area: d3.sum(d, v => v.area),
             });
         }, d => d.board + d.year).values());
-    }
+
+    } 
 
     async init() {
         // Restrict to 2020 data to avoid duplicates.
