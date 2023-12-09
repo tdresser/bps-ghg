@@ -26,7 +26,7 @@ async function main() {
   const df = d3.csvParse(decompressedString);
   const schoolRows : SchoolRow[] = []
   for (const d of df) {
-    // Year,Board,School,Address,City,Area,EI (ekWh/ft2),HDD,GHG (KG)
+    // Year,Board,School,Address,City,Area,energyNorm (ekWh/HDD),ghgNorm (kg/HDD)
 
     schoolRows.push(new SchoolRow({
       year: parseInt(d['Year']),
@@ -35,9 +35,8 @@ async function main() {
       address: d["Address"],
       city: d["City"],
       area: parseFloat(d["Area"]),
-      ei: parseFloat(d["EI (ekWh/ft2)"]),
-      hdd: parseFloat(d["HDD"]),
-      ghg_kg: parseFloat(d["GHG (KG)"]),
+      energyNorm: parseFloat(d["energyNorm (ekWh/HDD)"]),
+      ghgNorm: parseFloat(d["ghgNorm (kg/HDD)"]),
     }));
   }
 

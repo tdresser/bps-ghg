@@ -12,10 +12,9 @@ export interface Column {
 interface BoardRowData {
     year: number;
     board: string;
-    ghg_kg: number;
-    ei: number;
-    hdd: number;
     area: number;
+    ghgNorm: number;
+    energyNorm: number;
 }
 
 interface SchoolRowData extends BoardRowData {
@@ -27,25 +26,21 @@ interface SchoolRowData extends BoardRowData {
 export class BoardRow {
     year: number;
     board: string;
-    ghg_kg: number;
-    ei: number;
-    hdd: number;
     area: number;
-    energy: number;
-    ghgiN: number; //weather normalized ghg emissions intensity
-    eiN: number; //weather normalized energy use intensity
+    energyNorm: number;
+    ghgNorm: number; 
+    ghgIntNorm: number;
+    energyIntNorm: number;
 
 
     constructor(d: BoardRowData) {
         this.year = d.year
         this.board = d.board;
-        this.ghg_kg = d.ghg_kg;
-        this.ei = d.ei;
-        this.hdd = d.hdd;
         this.area = d.area;
-        this.energy = this.ei * this.area;
-        this.ghgiN = this.ghg_kg / this.hdd / this.area;
-        this.eiN = this.ei / this.hdd;
+        this.energyNorm = d.energyNorm;
+        this.ghgNorm = d.ghgNorm;
+        this.ghgIntNorm = this.ghgNorm / this.area;
+        this.energyIntNorm = this.energyNorm / this.area;
     }
 
     name() {
@@ -109,11 +104,10 @@ export class State {
     combineRows(data: BoardRow[], aggregation): BoardRow[] {
         return Array.from(d3.rollup(data, d => {
             return new BoardRow({
-                ghg_kg: d3.sum(d, v => v.ghg_kg),
+                ghgNorm: d3.sum(d, v => v.ghgNorm),
                 board: d[0].board,
                 year: d[0].year,
-                ei: d3.sum(d, v => v.energy) / d3.sum(d, v=> v.area),
-                hdd: d[0].hdd,
+                energyNorm: d3.sum(d, v => v.energyNorm),
                 area: d3.sum(d, v => v.area),
             });
         }, aggregation).values());
