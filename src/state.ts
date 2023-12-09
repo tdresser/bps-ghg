@@ -102,11 +102,11 @@ export class State {
         this.#schoolRows = schoolRows;
         this.#viewType = "main";
 
-        this.#boardRows = this.combineRows(this.#schoolRows);
-        this.#sectorRows = this.combineRows(this.#boardRows);
+        this.#boardRows = this.combineRows(this.#schoolRows, d => d.board + d.year);
+        this.#sectorRows = this.combineRows(this.#boardRows, d => d.year);
     }
 
-    combineRows(data: BoardRow[]): BoardRow[] {
+    combineRows(data: BoardRow[], aggregation): BoardRow[] {
         return Array.from(d3.rollup(data, d => {
             return new BoardRow({
                 ghg_kg: d3.sum(d, v => v.ghg_kg),
@@ -116,7 +116,7 @@ export class State {
                 hdd: d[0].hdd,
                 area: d3.sum(d, v => v.area),
             });
-        }, d => d.board + d.year).values());
+        }, aggregation).values());
 
     } 
 
