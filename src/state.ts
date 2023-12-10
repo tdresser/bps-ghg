@@ -39,8 +39,8 @@ export class AggregateRow {
         this.area = d.area;
         this.energyNorm = d.energyNorm;
         this.ghgNorm = d.ghgNorm;
-        this.ghgIntNorm = this.ghgNorm / this.area;
-        this.energyIntNorm = this.energyNorm / this.area;
+        this.ghgIntNorm = this.ghgNorm / this.area * 1000;
+        this.energyIntNorm = this.energyNorm / this.area * 1000;
     }
 
     name() {
