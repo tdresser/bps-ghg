@@ -4,7 +4,7 @@ import { fail } from '../util';
 import { Selection } from '../util';
 
 const YEAR = 2020;
-const MARGIN = { top: 10, right: 10, bottom: 30, left: 10 };
+const MARGIN = { top: 10, right: 10, bottom: 30, left: 20 };
 const BAR_PADDING = 3;
 
 const BAR_SIZE_INCREASE_MAX_DISTANCE = 7;
@@ -73,6 +73,19 @@ export class TodoGraph {
 
         this.#bars = this.#svg.append("g")
         this.#names = this.#svg.append("g");
+
+        // x axis label.
+        this.#svg.append("text")
+            .attr("transform", `translate(${this.#rect.width / 2}, ${this.#rect.height + 15})`)
+            .style("text-anchor", "middle")
+            .text("X axis label TODO")
+
+        // y axis label.
+        this.#svg.append("text")
+            .attr("transform", `translate(-5, ${this.#rect.height / 2}) rotate(-90)`)
+            .style("text-anchor", "middle")
+            .style("direction", "vertical-lr")
+            .text("Y axis label TODO")
 
         this.updateFromState();
     }
