@@ -95,7 +95,7 @@ export class State {
     #boardSearcher: Searcher<AggregateRow> = new fuzzysearch.Searcher([]);
 
     constructor(schoolRows: SchoolRow[]) {
-        this.#schoolRows = schoolRows;
+        this.#schoolRows = schoolRows.filter(d => d.energyIntNorm > 1);
         this.#viewType = "main";
 
         this.#boardRows = this.combineRows(this.#schoolRows, d => d.board + d.year);
