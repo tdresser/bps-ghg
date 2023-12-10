@@ -55,6 +55,13 @@ export class MainGraph {
 
         this.#bars = this.#svg.append("g")
         this.#path = this.#svg.append("path")
+
+        // y axis label.
+        this.#svg.append("text")
+            .attr("transform", `translate(-45, ${this.#rect.height / 2}) rotate(-90)`)
+            .style("text-anchor", "middle")
+            .style("direction", "vertical-lr")
+            .text("Y axis label TODO")
     }
     updateFromState() {
         this.#mainTitle.innerText = "Overall Sector Performance";
