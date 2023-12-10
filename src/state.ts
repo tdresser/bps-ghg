@@ -74,11 +74,12 @@ export interface SchoolFocus {
     kind: "school";
     schoolName: string;
     address: string;
+    board: string;
 }
 
 export interface BoardFocus {
     kind: "board";
-    value: string;
+    board: string;
 }
 
 type Focus = SchoolFocus | BoardFocus | NoFocus;
@@ -177,7 +178,7 @@ export class State {
             case "none":
                 return null;
             case "board": {
-                const board = (this.#focus as BoardFocus).value;
+                const board = (this.#focus as BoardFocus).board;
                 return this.#boardRows.filter(x => x.board == board);
             }
             case "school": {

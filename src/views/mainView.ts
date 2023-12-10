@@ -28,7 +28,7 @@ export class MainView extends View {
             this.#tableElement.style.visibility = "hidden";
             if (this.#lastSearching == "boards") {
                 const board = data.cells[0].data ?? fail();
-                state.setFocus({ kind: "board", value: board.toString() });
+                state.setFocus({ kind: "board", board: board.toString() });
                 this.#search_board.value = board.toString();
                 // Even if the school didn't change, we want to focus on the board.
                 // A board can only be focused if there's no selected school.
@@ -36,12 +36,13 @@ export class MainView extends View {
             } else if (this.#lastSearching == "schools") {
                 const school = data.cells[0].data ?? fail();
                 // We stored the board/address in a second/third hidden column.
-                const board = data.cells[1].data ?? fail();
+                const board = data.cells[1].data as string ?? fail();
                 const address = data.cells[2].data ?? fail();
                 state.setFocus({
                     kind: "school",
                     schoolName: school.toString(),
-                    address: address.toString()
+                    address: address.toString(),
+                    board: board,
                 });
                 this.#search_school.value = school.toString();
                 this.#search_board.value = board.toString();

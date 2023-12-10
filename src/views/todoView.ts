@@ -19,7 +19,7 @@ export class TodoView extends View {
             this.#graph = new TodoGraph("#todo_graph", state);
         }
         const focus = state.focus() as BoardFocus;
-        this.#boardName.innerText = "Board: " + focus.value;
+        this.#boardName.innerText = "Board: " + focus.board;
         this.#graph.updateFromState();
     }
 }

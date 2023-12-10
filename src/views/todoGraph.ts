@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { AggregateRow, BoardFocus, State } from '../state';
+import { AggregateRow, BoardFocus, SchoolFocus, State } from '../state';
 import { fail } from '../util';
 import { Selection } from '../util';
 
@@ -91,7 +91,15 @@ export class TodoGraph {
     }
 
     updateFromState() {
-        const focusedBoard = (this.#state.focus() as BoardFocus).value;
+        let focusedBoard = "";
+        switch (this.#state.focus().kind) {
+            case "board":
+                focusedBoard = (this.#state.focus() as BoardFocus).board;
+                break;
+            case "school":
+                focusedBoard = (this.#state.focus() as SchoolFocus).board;
+                break;
+        }
         console.log("FOCUSED BOARD:", focusedBoard);
         const currentBoardIndex = this.#sortedBoardRowsWithPosition.findIndex(d => d.row.board == focusedBoard)
         console.log("current: ", currentBoardIndex);
