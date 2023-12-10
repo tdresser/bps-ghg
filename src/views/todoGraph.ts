@@ -37,6 +37,7 @@ export class TodoGraph {
     #sortedBoardRowsWithPosition: AggregateRowWithPosition[];
     #names: Selection<SVGGElement>;
 
+
     constructor(containerSelector: string,
         state: State) {
         this.#state = state;

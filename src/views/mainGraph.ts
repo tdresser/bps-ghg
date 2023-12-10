@@ -15,12 +15,14 @@ export class MainGraph {
     #rect: DOMRect;
     #path: Selection<SVGPathElement>;
     #bars: Selection<SVGGElement>;
+    #mainTitle: HTMLElement;
 
     constructor(containerSelector: string,
         state: State) {
         this.#state = state;
         const container = d3.select(containerSelector);
         this.#rect = (container.node() as HTMLElement).getBoundingClientRect();
+        this.#mainTitle = document.getElementById("main_title") ?? fail();
         this.#svg = container.append("svg")
             .attr("width", this.#rect.width)
             .attr("height", this.#rect.height)
@@ -55,6 +57,8 @@ export class MainGraph {
         this.#bars = this.#svg.append("g")
     }
     updateFromState() {
+        this.#mainTitle.innerText = "Overall Sector Performance";
+
         const schoolRows = this.#state.focusedSchoolRows();
         const boardRows = this.#state.focusedBoardRows();
         const sectorRows = this.#state.sectorRows();
@@ -62,16 +66,19 @@ export class MainGraph {
         let aggregateRows = sectorRows;
         let domainMax = 0;
 
-        if (schoolRows && schoolRows.length > 0) {
-            domainMax = d3.max(schoolRows, function (d) { return +d.energyNorm; }) ?? fail()
-            if (!boardRows || boardRows.length == 0) {
-                throw("should only have school rows along with board rows.")
-            }
-        }
         if (boardRows && boardRows.length > 0) {
+            this.#mainTitle.innerText = "Board Performance";
             domainMax = Math.max(domainMax,
                 d3.max(boardRows, function (d) { return +d.energyNorm; }) ?? fail());
                 aggregateRows = boardRows;
+        }
+
+        if (schoolRows && schoolRows.length > 0) {
+            this.#mainTitle.innerText = "School vs Board Performance";
+            domainMax = Math.max(domainMax,d3.max(schoolRows, function (d) { return +d.energyNorm; }) ?? fail())
+            if (!boardRows || boardRows.length == 0) {
+                throw("should only have school rows along with board rows.")
+            }
         }
 
         if (domainMax == 0) {

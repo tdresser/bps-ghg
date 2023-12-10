@@ -110,6 +110,7 @@ export class MainView extends View {
 
     updateFromState(state: State): void {
         this.#graph.updateFromState();
+
         if (this.#lastSearching == "schools") {
             const query = this.#search_school.value;
             const rows = state.getFilteredSchools(query, this.#search_board.value);

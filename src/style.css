@@ -61,3 +61,7 @@ tr:hover td {
 #todo_graph {
   height:600px;
 }
+
+h2 {
+  text-align: center;
+}
