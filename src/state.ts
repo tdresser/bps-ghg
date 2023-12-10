@@ -2,14 +2,14 @@ import * as fuzzysearch from 'fast-fuzzy';
 import * as d3 from 'd3';
 import { fail, yieldy } from './util';
 
-export type Searcher<T extends BoardRow> = fuzzysearch.Searcher<T, fuzzysearch.FullOptions<T>>;
+export type Searcher<T extends AggregateRow> = fuzzysearch.Searcher<T, fuzzysearch.FullOptions<T>>;
 
 export interface Column {
     name: string,
     hidden: boolean
 }
 
-interface BoardRowData {
+interface AggregateRowData {
     year: number;
     board: string;
     area: number;
@@ -17,23 +17,23 @@ interface BoardRowData {
     energyNorm: number;
 }
 
-interface SchoolRowData extends BoardRowData {
+interface SchoolRowData extends AggregateRowData {
     school: string;
     address: string;
     city: string;
 }
 
-export class BoardRow {
+export class AggregateRow {
     year: number;
     board: string;
     area: number;
     energyNorm: number;
-    ghgNorm: number; 
+    ghgNorm: number;
     ghgIntNorm: number;
     energyIntNorm: number;
 
 
-    constructor(d: BoardRowData) {
+    constructor(d: AggregateRowData) {
         this.year = d.year
         this.board = d.board;
         this.area = d.area;
@@ -48,8 +48,8 @@ export class BoardRow {
     }
 }
 
-export class SchoolRow extends BoardRow {
-    
+export class SchoolRow extends AggregateRow {
+
     school: string;
     address: string;
     city: string;
@@ -88,22 +88,22 @@ export class State {
     #focus: Focus = { kind: "none" };
     #viewType: ViewType;
     #schoolRows: SchoolRow[];
-    #boardRows: BoardRow[];
-    #sectorRows: BoardRow[];
+    #boardRows: AggregateRow[];
+    #sectorRows: AggregateRow[];
     #schoolSearcher: Searcher<SchoolRow> = new fuzzysearch.Searcher([]);
-    #boardSearcher: Searcher<BoardRow> = new fuzzysearch.Searcher([]);
+    #boardSearcher: Searcher<AggregateRow> = new fuzzysearch.Searcher([]);
 
     constructor(schoolRows: SchoolRow[]) {
         this.#schoolRows = schoolRows;
         this.#viewType = "main";
 
         this.#boardRows = this.combineRows(this.#schoolRows, d => d.board + d.year);
-        this.#sectorRows = this.combineRows(this.#boardRows, d => d.year);
+        this.#sectorRows = this.combineRows(this.#boardRows, d => "" + d.year);
     }
 
-    combineRows(data: BoardRow[], aggregation): BoardRow[] {
+    combineRows(data: AggregateRow[], aggregation: (b:AggregateRow) => string): AggregateRow[] {
         return Array.from(d3.rollup(data, d => {
-            return new BoardRow({
+            return new AggregateRow({
                 ghgNorm: d3.sum(d, v => v.ghgNorm),
                 board: d[0].board,
                 year: d[0].year,
@@ -112,7 +112,7 @@ export class State {
             });
         }, aggregation).values());
 
-    } 
+    }
 
     async init() {
         // Restrict to 2020 data to avoid duplicates.
@@ -145,7 +145,7 @@ export class State {
         return searchResults;
     }
 
-    getFilteredBoards(searchQuery: string): BoardRow[] {
+    getFilteredBoards(searchQuery: string): AggregateRow[] {
         if (searchQuery == "") {
             return this.#boardRows;
         }
@@ -160,7 +160,7 @@ export class State {
         return this.#focus;
     }
 
-    allBoardRowsForYear(year: number): BoardRow[] {
+    allBoardRowsForYear(year: number): AggregateRow[] {
         return this.#boardRows.filter(x => x.year == year);
     }
 
@@ -172,7 +172,7 @@ export class State {
         return this.#schoolRows.filter(x => x.address == address);
     }
 
-    focusedBoardRows(): BoardRow[] | null {
+    focusedBoardRows(): AggregateRow[] | null {
         switch (this.#focus.kind) {
             case "none":
                 return null;
@@ -200,6 +200,10 @@ export class State {
     }
     viewType() {
         return this.#viewType;
+    }
+
+    sectorRows() {
+        return this.#sectorRows;
     }
 }
 

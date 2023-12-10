@@ -57,20 +57,25 @@ export class MainGraph {
     updateFromState() {
         const schoolRows = this.#state.focusedSchoolRows();
         const boardRows = this.#state.focusedBoardRows();
-        if ((!schoolRows || schoolRows.length == 0) &&
-            (!boardRows || boardRows.length == 0)) {
-            // TODO: cleanup.
-            return;
-        }
+        const sectorRows = this.#state.sectorRows();
 
-        // TODO: pick right data!
+        let aggregateRows = sectorRows;
         let domainMax = 0;
+
         if (schoolRows && schoolRows.length > 0) {
-            domainMax = d3.max(schoolRows, function (d) { return +d.ghg_kg; }) ?? fail()
+            domainMax = d3.max(schoolRows, function (d) { return +d.energyNorm; }) ?? fail()
+            if (!boardRows || boardRows.length == 0) {
+                throw("should only have school rows along with board rows.")
+            }
         }
         if (boardRows && boardRows.length > 0) {
             domainMax = Math.max(domainMax,
-                d3.max(boardRows, function (d) { return +d.ghg_kg; }) ?? fail());
+                d3.max(boardRows, function (d) { return +d.energyNorm; }) ?? fail());
+                aggregateRows = boardRows;
+        }
+
+        if (domainMax == 0) {
+            domainMax = d3.max(sectorRows, function (d) { return +d.energyNorm; }) ?? fail()
         }
 
         this.#yScale = d3.scaleLinear()
@@ -79,9 +84,8 @@ export class MainGraph {
         const yAxis = d3.axisLeft(this.#yScale);
         yAxis(this.#yAxisEl);
 
-
         // Add the line
-        this.#path.datum(boardRows)
+        this.#path.datum(aggregateRows)
             .attr("fill", "none")
             .attr("stroke", "steelblue")
             .attr("stroke-width", 1.5)
@@ -89,7 +93,7 @@ export class MainGraph {
                 // @ts-ignore
                 .x(d => this.#xScale(d.year) + this.#xScale.bandwidth()/2)
                 // @ts-ignore
-                .y(d => this.#yScale(d.ghg_kg)) as any
+                .y(d => this.#yScale(d.energyNorm)) as any
             );
 
         if (schoolRows) {
@@ -99,9 +103,9 @@ export class MainGraph {
                 .join("rect")
                 // @ts-ignore
                 .attr("x", d => this.#xScale(d.year))
-                .attr("y", d => this.#yScale(d.ghg_kg))
+                .attr("y", d => this.#yScale(d.energyNorm))
                 .attr("width", this.#xScale.bandwidth())
-                .attr("height", d => this.#rect.height - this.#yScale(d.ghg_kg))
+                .attr("height", d => this.#rect.height - this.#yScale(d.energyNorm))
                 .attr("fill", "#69b3a2")
         }
     }

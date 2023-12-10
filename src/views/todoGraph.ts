@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { BoardRow, State } from '../state';
+import { AggregateRow, State } from '../state';
 import { fail } from '../util';
 import { Selection } from '../util';
 
@@ -15,7 +15,7 @@ export class TodoGraph {
     #svg: Selection<SVGGElement>;
     #rect: DOMRect;
     #bars: Selection<SVGGElement>;
-    #sortedBoardRows: BoardRow[];
+    #sortedBoardRows: AggregateRow[];
 
     constructor(containerSelector: string,
         state: State) {
@@ -26,7 +26,7 @@ export class TodoGraph {
         this.#rect = (container.node() as HTMLElement).getBoundingClientRect();
 
         const boardRows = this.#state.allBoardRowsForYear(YEAR) ?? fail();
-        this.#sortedBoardRows = boardRows.sort((a, b) => b.ghg_kg - a.ghg_kg);
+        this.#sortedBoardRows = boardRows.sort((a, b) => b.energyNorm - a.energyNorm);
         let boardNames = this.#sortedBoardRows.map(x => x.board);
         // @ts-ignore
         this.#yScale = d3.scaleBand()
@@ -38,7 +38,7 @@ export class TodoGraph {
         this.#xScale = d3.scaleLinear()
             .range([0, this.#rect.width])
             // @ts-ignore
-            .domain(d3.extent(this.#sortedBoardRows, d => d.ghg_kg));
+            .domain(d3.extent(this.#sortedBoardRows, d => d.energyNorm));
 
         this.#svg = container.append("svg")
             .attr("width", this.#rect.width)
@@ -78,7 +78,7 @@ export class TodoGraph {
             .attr("x", 0)
             // @ts-ignore
             .attr("y", d => this.#yScale(d.board))
-            .attr("width", d => this.#xScale(d.ghg_kg))
+            .attr("width", d => this.#xScale(d.energyNorm))
             .attr("height", this.#yScale.bandwidth())
             .attr("fill", "#69b3a2")
 
