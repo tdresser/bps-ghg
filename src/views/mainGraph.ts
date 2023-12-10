@@ -53,8 +53,8 @@ export class MainGraph {
         const yAxis = d3.axisLeft(this.#yScale);
         yAxis(this.#yAxisEl);
 
-        this.#path = this.#svg.append("path")
         this.#bars = this.#svg.append("g")
+        this.#path = this.#svg.append("path")
     }
     updateFromState() {
         this.#mainTitle.innerText = "Overall Sector Performance";
@@ -69,20 +69,20 @@ export class MainGraph {
         if (boardRows && boardRows.length > 0) {
             this.#mainTitle.innerText = "Board Performance";
             domainMax = Math.max(domainMax,
-                d3.max(boardRows, function (d) { return +d.energyNorm; }) ?? fail());
+                d3.max(boardRows, function (d) { return +d.energyIntNorm; }) ?? fail());
                 aggregateRows = boardRows;
         }
 
         if (schoolRows && schoolRows.length > 0) {
             this.#mainTitle.innerText = "School vs Board Performance";
-            domainMax = Math.max(domainMax,d3.max(schoolRows, function (d) { return +d.energyNorm; }) ?? fail())
+            domainMax = Math.max(domainMax,d3.max(schoolRows, function (d) { return +d.energyIntNorm; }) ?? fail())
             if (!boardRows || boardRows.length == 0) {
                 throw("should only have school rows along with board rows.")
             }
         }
 
         if (domainMax == 0) {
-            domainMax = d3.max(sectorRows, function (d) { return +d.energyNorm; }) ?? fail()
+            domainMax = d3.max(sectorRows, function (d) { return +d.energyIntNorm; }) ?? fail()
         }
 
         this.#yScale = d3.scaleLinear()
@@ -100,7 +100,7 @@ export class MainGraph {
                 // @ts-ignore
                 .x(d => this.#xScale(d.year) + this.#xScale.bandwidth()/2)
                 // @ts-ignore
-                .y(d => this.#yScale(d.energyNorm)) as any
+                .y(d => this.#yScale(d.energyIntNorm)) as any
             );
 
         if (schoolRows) {
@@ -110,9 +110,9 @@ export class MainGraph {
                 .join("rect")
                 // @ts-ignore
                 .attr("x", d => this.#xScale(d.year))
-                .attr("y", d => this.#yScale(d.energyNorm))
+                .attr("y", d => this.#yScale(d.energyIntNorm))
                 .attr("width", this.#xScale.bandwidth())
-                .attr("height", d => this.#rect.height - this.#yScale(d.energyNorm))
+                .attr("height", d => this.#rect.height - this.#yScale(d.energyIntNorm))
                 .attr("fill", "#69b3a2")
         }
     }

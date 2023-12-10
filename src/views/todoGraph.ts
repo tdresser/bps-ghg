@@ -47,7 +47,7 @@ export class TodoGraph {
         console.log("RECT BEFORE", this.#rect);
 
         const boardRows = this.#state.allBoardRowsForYear(YEAR) ?? fail();
-        const sortedBoardRows = boardRows.sort((a, b) => b.energyNorm - a.energyNorm);
+        const sortedBoardRows = boardRows.sort((a, b) => b.energyIntNorm - a.energyIntNorm);
         this.#sortedBoardRowsWithPosition = sortedBoardRows.map(r => new AggregateRowWithPosition(r, 0, 0));
 
         this.#svg = container.append("svg")
@@ -62,14 +62,14 @@ export class TodoGraph {
         this.#xScale = d3.scaleLinear()
             .range([0, this.#rect.width])
             // @ts-ignore
-            .domain(d3.extent(this.#sortedBoardRowsWithPosition, d => d.row.energyNorm));
+            .domain(d3.extent(this.#sortedBoardRowsWithPosition, d => d.row.energyIntNorm));
 
 
 
         this.#svg.append("g")
             .attr("transform", `translate(0, ${this.#rect.height - MARGIN.bottom})`)
             .call(d3.axisBottom(this.#xScale)
-                .tickFormat(x => Math.round(x.valueOf() / 10000).toString()));
+                .tickFormat(x => Math.round(x.valueOf()).toString()));
 
         this.#bars = this.#svg.append("g")
         this.#names = this.#svg.append("g");
@@ -110,7 +110,7 @@ export class TodoGraph {
             .join("rect")
             .attr("x", 0)
             .attr("y", d => d.y)
-            .attr("width", d => this.#xScale(d.row.energyNorm))
+            .attr("width", d => this.#xScale(d.row.energyIntNorm))
             .attr("height", d => d.height)
             .attr("fill", (_, i) => i == currentBoardIndex ? "#EECC77" : "#FFCCCC")
 
