@@ -53,7 +53,7 @@ export class MainView extends View {
 
         this.#search_board = document.getElementById("search_board") as HTMLInputElement ?? fail();
         this.#search_board.addEventListener("input", () => {
-            this.updateFromState(state);
+            viewManager.updateFromState(state);
         });
         this.#search_board.addEventListener("focus", () => {
             this.#lastSearching = "boards";
@@ -66,7 +66,7 @@ export class MainView extends View {
 
         this.#search_school = document.getElementById("search_school") as HTMLInputElement ?? fail();
         this.#search_school.addEventListener("input", () => {
-            this.updateFromState(state);
+            viewManager.updateFromState(state);
         });
         this.#search_school.addEventListener("focus", () => {
             this.#lastSearching = "schools";

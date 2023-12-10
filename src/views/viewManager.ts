@@ -13,9 +13,10 @@ export class ViewManager {
     updateFromState(state: State) {
         let currentView = this.activeView(state);
         for (const view of this.#views) {
+            // Need to do the first updateFromState while visible, so do this first.
+            view.updateFromState(state);
             view.setVisible(view == currentView);
         }
-        currentView.updateFromState(state);
     }
 
     activeView(state:State):View {
