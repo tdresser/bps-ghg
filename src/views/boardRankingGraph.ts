@@ -37,6 +37,8 @@ class AggregateRowWithPosition {
 export class BoardRankingGraph {
     #state: State;
     #xScale: d3.ScaleLinear<number, number, never>;
+    #xAxisEl: Selection<SVGGElement>;
+    #xAxisLabelEl: Selection<SVGTextElement>;
     #svg: Selection<SVGGElement>;
     #rect: DOMRect;
     #bars: Selection<SVGGElement>;
@@ -69,10 +71,7 @@ export class BoardRankingGraph {
             // @ts-ignore
             .domain([0, d3.max(this.#sortedBoardRowsWithPosition, d => d.row.energyIntNorm)]);
 
-
-
-        this.#svg.append("g")
-            .attr("transform", `translate(0, ${this.#rect.height - MARGIN.bottom})`)
+        this.#xAxisEl = this.#svg.append("g")
             .call(d3.axisBottom(this.#xScale)
                 .tickFormat(x => Math.round(x.valueOf()).toString()));
 
@@ -80,8 +79,7 @@ export class BoardRankingGraph {
         this.#names = this.#svg.append("g");
 
         // x axis label.
-        this.#svg.append("text")
-            .attr("transform", `translate(${this.#rect.width / 2}, ${this.#rect.height + 15})`)
+        this.#xAxisLabelEl = this.#svg.append("text")
             .style("text-anchor", "middle")
             .text("Energy Intensity (eWh/HDD/sq.ft)")
 
@@ -110,6 +108,9 @@ export class BoardRankingGraph {
             row.height = height;
             y += height + BAR_PADDING;
         });
+
+        this.#xAxisEl.attr("transform", `translate(0, ${y})`)
+        this.#xAxisLabelEl.attr("transform", `translate(${this.#rect.width / 2}, ${y + 40})`)
 
         this.#bars.selectAll("rect")
             .data(this.#sortedBoardRowsWithPosition)
