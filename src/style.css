@@ -87,3 +87,7 @@ h2 {
 #tabs li.inactive {
   border-bottom: 1px solid black;
 }
+
+#info {
+  margin:12px;
+}
