@@ -67,7 +67,7 @@ export class BoardRankingGraph {
         this.#xScale = d3.scaleLinear()
             .range([0, this.#rect.width])
             // @ts-ignore
-            .domain(d3.extent(this.#sortedBoardRowsWithPosition, d => d.row.energyIntNorm));
+            .domain([0, d3.max(this.#sortedBoardRowsWithPosition, d => d.row.energyIntNorm)]);
 
 
 
