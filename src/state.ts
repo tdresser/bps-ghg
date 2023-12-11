@@ -96,6 +96,9 @@ export class State {
 
     constructor(schoolRows: SchoolRow[]) {
         this.#schoolRows = schoolRows.filter(d => d.energyIntNorm > 1);
+        this.#schoolRows.map(x => {
+            x.school = x.school + ", " + x.address;
+        })
         this.#viewType = "history";
 
         this.#boardRows = this.combineRows(this.#schoolRows, d => d.board + d.year);
