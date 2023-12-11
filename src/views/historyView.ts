@@ -124,13 +124,8 @@ export class MainView extends View {
                 {
                     hidden: true,  // Store the address in the third hidden column.
                     name: "address"
-                },
-                {
-                    hidden: false,
-                    name: "city"
-
                 }],
-                data: rows.map(x => [x.school, x.board, x.address, x.city]),
+                data: rows.map(x => [x.school, x.board, x.address]),
             }).forceRender();
         } else if (this.#lastSearching == "boards") {
             const query = this.#search_board.value;

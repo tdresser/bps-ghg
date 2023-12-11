@@ -97,7 +97,7 @@ export class State {
     constructor(schoolRows: SchoolRow[]) {
         this.#schoolRows = schoolRows.filter(d => d.energyIntNorm > 1);
         this.#schoolRows.map(x => {
-            x.school = x.school + ", " + x.address;
+            x.school = x.school + ", " + x.city;
         })
         this.#viewType = "history";
 
