@@ -128,7 +128,7 @@ export class BoardRankingGraph {
             .attr("font-size", 10)
             .attr("x", 2)
             .attr("y", d => d.y + d.height / 2)
-            .text(d => d.height > 10 ? d.row.board : "")
+            .text((d, i) => d.height > 10 ? i + ": " + d.row.board : "")
             .style("dominant-baseline", "middle")
             .attr("fill", "#000000")
     }
