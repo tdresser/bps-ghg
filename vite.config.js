@@ -4,7 +4,7 @@ export default () => {
     build: {
         outDir: 'docs'
     },
-    base: '/bps-ghg',
+    base: '/sb-dataviz',
     assetsInclude: ['**/*.csv.gzip'],
   };
 };
