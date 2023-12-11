@@ -39,8 +39,8 @@ export class AggregateRow {
         this.area = d.area;
         this.energyNorm = d.energyNorm;
         this.ghgNorm = d.ghgNorm;
-        this.ghgIntNorm = this.ghgNorm / this.area;
-        this.energyIntNorm = this.energyNorm / this.area;
+        this.ghgIntNorm = this.ghgNorm / this.area * 1000;
+        this.energyIntNorm = this.energyNorm / this.area * 1000;
     }
 
     name() {
@@ -95,7 +95,7 @@ export class State {
     #boardSearcher: Searcher<AggregateRow> = new fuzzysearch.Searcher([]);
 
     constructor(schoolRows: SchoolRow[]) {
-        this.#schoolRows = schoolRows;
+        this.#schoolRows = schoolRows.filter(d => d.energyIntNorm > 1);
         this.#viewType = "main";
 
         this.#boardRows = this.combineRows(this.#schoolRows, d => d.board + d.year);
