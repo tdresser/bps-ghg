@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import { AggregateRow, BoardFocus, SchoolFocus, State } from '../state';
 import { fail } from '../util';
 import { Selection } from '../util';
+import { BAR_COLOR, HIGHLIGHTED_BAR_COLOR } from '../COLORS';
 
 const YEAR = 2020;
 const MARGIN = { top: 10, right: 10, bottom: 30, left: 20 };
@@ -117,7 +118,7 @@ export class BoardRankingGraph {
             .attr("y", d => d.y)
             .attr("width", d => this.#xScale(d.row.energyIntNorm))
             .attr("height", d => d.height)
-            .attr("fill", (_, i) => i == currentBoardIndex ? "#EECC77" : "#FFCCCC")
+            .attr("fill", (_, i) => i == currentBoardIndex ? HIGHLIGHTED_BAR_COLOR : BAR_COLOR)
 
         this.#names.selectAll("text")
             .data(this.#sortedBoardRowsWithPosition)

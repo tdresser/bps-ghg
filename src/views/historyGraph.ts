@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import { State } from '../state';
 import { fail } from '../util';
 import { Selection } from '../util';
+import { BAR_COLOR, LINE_COLOR } from '../COLORS';
 
 const YEARS = [2015, 2016, 2017, 2018, 2019, 2020];
 const MARGIN = { top: 10, right: 30, bottom: 30, left: 60 };
@@ -105,7 +106,7 @@ export class HistoryGraph {
         // Add the line
         this.#path.datum(aggregateRows)
             .attr("fill", "none")
-            .attr("stroke", "steelblue")
+            .attr("stroke", LINE_COLOR)
             .attr("stroke-width", 1.5)
             .attr("d", d3.line()
                 // @ts-ignore
@@ -124,7 +125,7 @@ export class HistoryGraph {
                 .attr("y", d => this.#yScale(d.energyIntNorm))
                 .attr("width", this.#xScale.bandwidth())
                 .attr("height", d => this.#rect.height - this.#yScale(d.energyIntNorm))
-                .attr("fill", "#69b3a2")
+                .attr("fill", BAR_COLOR)
         }
     }
 }
