@@ -42,7 +42,11 @@ export class HistoryGraph {
         this.#svg.append("g")
             .attr("transform", `translate(0, ${this.#rect.height})`)
             .call(d3.axisBottom(this.#xScale)
-                .tickFormat(x => Math.round(x.valueOf()).toString())
+                .tickFormat(x => {
+                    const firstYear = Math.round(x.valueOf());
+
+                    return firstYear + "–" + (firstYear + 1).toString().slice(2, 4);
+                })
             );
 
         // Temporary scale.
