@@ -83,7 +83,7 @@ export interface BoardFocus {
 }
 
 type Focus = SchoolFocus | BoardFocus | NoFocus;
-export type ViewType = "main" | "todo";
+export type ViewType = "history" | "board_ranking";
 
 export class State {
     #focus: Focus = { kind: "none" };
@@ -96,7 +96,7 @@ export class State {
 
     constructor(schoolRows: SchoolRow[]) {
         this.#schoolRows = schoolRows.filter(d => d.energyIntNorm > 1);
-        this.#viewType = "main";
+        this.#viewType = "history";
 
         this.#boardRows = this.combineRows(this.#schoolRows, d => d.board + d.year);
         this.#sectorRows = this.combineRows(this.#boardRows, d => "" + d.year);

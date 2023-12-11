@@ -24,9 +24,9 @@ export class ViewManager {
 
     activeView(state:State):View {
         switch (state.viewType()) {
-            case "main":
+            case "history":
                 return this.#views[0];
-            case "todo":
+            case "board_ranking":
                 return this.#views[1];
         }
     }

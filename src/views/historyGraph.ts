@@ -6,7 +6,7 @@ import { Selection } from '../util';
 const YEARS = [2015, 2016, 2017, 2018, 2019, 2020];
 const MARGIN = { top: 10, right: 30, bottom: 30, left: 60 };
 
-export class MainGraph {
+export class HistoryGraph {
     #state: State;
     #yScale: d3.ScaleLinear<number, number, never>;
     #xScale: d3.ScaleBand<number>;
@@ -15,14 +15,14 @@ export class MainGraph {
     #rect: DOMRect;
     #path: Selection<SVGPathElement>;
     #bars: Selection<SVGGElement>;
-    #mainTitle: HTMLElement;
+    #historyTitle: HTMLElement;
 
     constructor(containerSelector: string,
         state: State) {
         this.#state = state;
         const container = d3.select(containerSelector);
         this.#rect = (container.node() as HTMLElement).getBoundingClientRect();
-        this.#mainTitle = document.getElementById("main_title") ?? fail();
+        this.#historyTitle = document.getElementById("history_title") ?? fail();
         this.#svg = container.append("svg")
             .attr("width", this.#rect.width)
             .attr("height", this.#rect.height)
@@ -64,7 +64,7 @@ export class MainGraph {
             .text("Energy Intensity (eWh/HDD/sq.ft)")
     }
     updateFromState() {
-        this.#mainTitle.innerText = "Overall Sector Performance";
+        this.#historyTitle.innerText = "Overall Sector Performance";
 
         const schoolRows = this.#state.focusedSchoolRows();
         const boardRows = this.#state.focusedBoardRows();
@@ -74,14 +74,14 @@ export class MainGraph {
         let domainMax = 0;
 
         if (boardRows && boardRows.length > 0) {
-            this.#mainTitle.innerText = "Board Performance";
+            this.#historyTitle.innerText = "Board Performance";
             domainMax = Math.max(domainMax,
                 d3.max(boardRows, function (d) { return +d.energyIntNorm; }) ?? fail());
                 aggregateRows = boardRows;
         }
 
         if (schoolRows && schoolRows.length > 0) {
-            this.#mainTitle.innerText = "School vs Board Performance";
+            this.#historyTitle.innerText = "School vs Board Performance";
             domainMax = Math.max(domainMax,d3.max(schoolRows, function (d) { return +d.energyIntNorm; }) ?? fail())
             if (!boardRows || boardRows.length == 0) {
                 throw("should only have school rows along with board rows.")

@@ -3,7 +3,7 @@ import { View } from "./view";
 import { fail } from "../util";
 import { Grid } from "gridjs";
 import { ViewManager } from "./viewManager";
-import { MainGraph } from "./mainGraph";
+import { HistoryGraph } from "./historyGraph";
 import { TabView } from "./tabView";
 
 export class MainView extends View {
@@ -12,13 +12,13 @@ export class MainView extends View {
     #search_school: HTMLInputElement;
     #search_board: HTMLInputElement;
     #lastSearching: 'schools' | 'boards';
-    #graph: MainGraph;
+    #graph: HistoryGraph;
     #tabView: TabView;
     constructor(state: State, viewManager: ViewManager) {
-        super(document.querySelector("#main_view") ?? fail());
+        super(document.querySelector("#history_view") ?? fail());
         this.#tableElement = document.querySelector("#table_container") ?? fail();
         this.#lastSearching = "schools";
-        this.#graph = new MainGraph("#main_graph", state);
+        this.#graph = new HistoryGraph("#history_graph", state);
         this.#tabView = new TabView(state, viewManager);
         viewManager.setTabView(this.#tabView);
         this.#grid = new Grid({

@@ -16,7 +16,7 @@ export class TabView {
         for (const d of [this.#tab_history, this.#tab_board_ranking]) {
             d.addEventListener("click", e => {
                 console.log(e);
-                const newViewType: ViewType = d == this.#tab_history ? "main" : "todo";
+                const newViewType: ViewType = d == this.#tab_history ? "history" : "board_ranking";
                 state.setViewType(newViewType);
                 viewManager.updateFromState(state);
             })
@@ -25,12 +25,12 @@ export class TabView {
 
     updateFromState() {
         switch (this.#state.viewType()) {
-            case "main":
+            case "history":
                 this.#tab_board_ranking.className = "inactive"
                 this.#tab_history.className = ""
 
                 break;
-            case "todo":
+            case "board_ranking":
                 this.#tab_board_ranking.className = ""
                 this.#tab_history.className = "inactive"
                 break;

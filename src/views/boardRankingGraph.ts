@@ -28,7 +28,7 @@ class AggregateRowWithPosition {
     }
 }
 
-export class TodoGraph {
+export class BoardRankingGraph {
     #state: State;
     #xScale: d3.ScaleLinear<number, number, never>;
     #svg: Selection<SVGGElement>;

@@ -54,11 +54,11 @@ tr:hover td {
   display:none;
 }
 
-#main_graph {
+#history_graph {
   height:300px;
 }
 
-#todo_graph {
+#board_ranking_graph {
   height:600px;
 }
 

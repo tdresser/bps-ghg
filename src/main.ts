@@ -5,8 +5,8 @@ import csv from './assets/data.csv.gzip';
 import "gridjs/dist/theme/mermaid.css";
 import { fail } from './util';
 import { SchoolRow, State } from './state';
-import { MainView } from './views/mainView';
-import { TodoView } from './views/todoView';
+import { MainView } from './views/historyView';
+import { BoardRankingView } from './views/boardRankingView';
 import { ViewManager, Views } from './views/viewManager';
 
 let state: State | null = null;
@@ -45,7 +45,7 @@ async function main() {
   const views:Views = []
   const viewManager = new ViewManager(views)
   views.push(new MainView(state, viewManager));
-  views.push(new TodoView());
+  views.push(new BoardRankingView());
 
   await state.init();
   viewManager.updateFromState(state);
