@@ -6,6 +6,19 @@ import { ViewManager } from "./viewManager";
 import { HistoryGraph } from "./historyGraph";
 import { TabView } from "./tabView";
 
+function hasParent(target:Node, parent:Node) {
+    let t: Node | null = target;
+    while (true) {
+        if (t == null) {
+            return false;
+        }
+        if (t == parent) {
+            return true;
+        }
+        t = t.parentNode;
+    }
+}
+
 export class MainView extends View {
     #grid: Grid
     #tableElement: HTMLElement;
@@ -89,8 +102,14 @@ export class MainView extends View {
             }
         });
 
-        this.el().addEventListener("click", (e) => {
-            if ((e.target as HTMLElement).tagName == "LABEL") {
+        document.addEventListener("click", (e) => {
+            console.log(e)
+            const clearFocus = (
+                !hasParent(e.target as Node, this.#search_board) &&
+                !hasParent(e.target as Node, this.#search_school) &&
+                !hasParent(e.target as Node, this.#tableElement)
+            );
+            if (clearFocus) {
                 this.#search_board.blur();
                 this.#search_school.blur();
                 switch (state.focus().kind) {
