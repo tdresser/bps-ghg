@@ -8,6 +8,10 @@
 </head>
 
 <body>
+  <ul id="tabs">
+    <li id="tab_history">History</li>
+    <li id="tab_board_ranking">Board Ranking</li>
+  </ul>
   <div class="search_box">
     <label>Board:</label>
     <input type="text" id="search_board" name="search_board" />
@@ -20,13 +24,11 @@
         <input type="text" id="search_school" name="search_school" />
       </div>
     </div>
-    <div id="switch_views">Switch Views</div>
     <h2 id="main_title"></h2>
     <div id="main_graph"></div>
   </div>
   <div id="todo_view">
     <h2 id="board_name"></h2>
-    <div class="back" id="todo_back">Back</div>
     <div id="todo_graph"></div>
   </div>
   <script type="module" src="/src/main.ts"></script>

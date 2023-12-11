@@ -83,7 +83,7 @@ export interface BoardFocus {
 }
 
 type Focus = SchoolFocus | BoardFocus | NoFocus;
-type ViewType = "main" | "todo";
+export type ViewType = "main" | "todo";
 
 export class State {
     #focus: Focus = { kind: "none" };

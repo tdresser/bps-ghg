@@ -78,7 +78,7 @@ export class TodoGraph {
         this.#svg.append("text")
             .attr("transform", `translate(${this.#rect.width / 2}, ${this.#rect.height + 15})`)
             .style("text-anchor", "middle")
-            .text("Energy Intensity (ekWh/HDD/sq.ft)")
+            .text("Energy Intensity (eWh/HDD/sq.ft)")
 
         // y axis label.
         this.#svg.append("text")

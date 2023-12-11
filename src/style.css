@@ -65,3 +65,25 @@ tr:hover td {
 h2 {
   text-align: center;
 }
+
+#tabs {
+  display:flex;
+  padding:2px 2px 0 2px;
+  background-color: #cccccc;
+}
+
+#tabs li {
+  flex-grow: 1;
+  margin: 3px 3px 0 3px;
+  padding:2px 0;
+  list-style: none;
+  text-align: center;
+  background-color: white;
+  box-shadow: 0px 0px 10px #000000dd;
+  clip-path: inset(-8px -8px 0px -8px);
+  border-radius: 10px 10px 0px 0px; /* This is a short hand syntax */
+}
+
+#tabs li.inactive {
+  border-bottom: 1px solid black;
+}

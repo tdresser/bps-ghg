@@ -61,7 +61,7 @@ export class MainGraph {
             .attr("transform", `translate(-45, ${this.#rect.height / 2}) rotate(-90)`)
             .style("text-anchor", "middle")
             .style("direction", "vertical-lr")
-            .text("Energy Intensity (ekWh/HDD/sq.ft)")
+            .text("Energy Intensity (eWh/HDD/sq.ft)")
     }
     updateFromState() {
         this.#mainTitle.innerText = "Overall Sector Performance";

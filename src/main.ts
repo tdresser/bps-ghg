@@ -45,7 +45,7 @@ async function main() {
   const views:Views = []
   const viewManager = new ViewManager(views)
   views.push(new MainView(state, viewManager));
-  views.push(new TodoView(state, viewManager));
+  views.push(new TodoView());
 
   await state.init();
   viewManager.updateFromState(state);
