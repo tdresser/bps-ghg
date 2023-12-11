@@ -7,11 +7,16 @@ const YEAR = 2020;
 const MARGIN = { top: 10, right: 10, bottom: 30, left: 20 };
 const BAR_PADDING = 3;
 
+const NUM_BOARDS = 72;
 const BAR_SIZE_INCREASE_MAX_DISTANCE = 7;
 const BAR_SIZE_INCREASE_PER_ROW = 12 / BAR_SIZE_INCREASE_MAX_DISTANCE;
 function heightForBar(rowIndex: number, currentBoardIndex: number) {
-    const dist = Math.abs(currentBoardIndex - rowIndex);
-    if (dist > BAR_SIZE_INCREASE_MAX_DISTANCE || currentBoardIndex < 0) {
+    const dist = Math.min(
+        Math.abs(currentBoardIndex - rowIndex),
+        Math.abs(0 - rowIndex),
+        Math.abs(NUM_BOARDS - rowIndex),
+    )
+    if (dist > BAR_SIZE_INCREASE_MAX_DISTANCE) {
         return 3;
     }
     return 3 + BAR_SIZE_INCREASE_PER_ROW * (BAR_SIZE_INCREASE_MAX_DISTANCE - dist);
@@ -44,10 +49,9 @@ export class BoardRankingGraph {
 
         const container = d3.select(containerSelector);
         this.#rect = (container.node() as HTMLElement).getBoundingClientRect();
-        console.log("RECT BEFORE", this.#rect);
 
         const boardRows = this.#state.allBoardRowsForYear(YEAR) ?? fail();
-        const sortedBoardRows = boardRows.sort((a, b) => b.energyIntNorm - a.energyIntNorm);
+        const sortedBoardRows = boardRows.sort((a, b) => a.energyIntNorm - b.energyIntNorm);
         this.#sortedBoardRowsWithPosition = sortedBoardRows.map(r => new AggregateRowWithPosition(r, 0, 0));
 
         this.#svg = container.append("svg")
@@ -79,13 +83,6 @@ export class BoardRankingGraph {
             .attr("transform", `translate(${this.#rect.width / 2}, ${this.#rect.height + 15})`)
             .style("text-anchor", "middle")
             .text("Energy Intensity (eWh/HDD/sq.ft)")
-
-        // y axis label.
-        this.#svg.append("text")
-            .attr("transform", `translate(-5, ${this.#rect.height / 2}) rotate(-90)`)
-            .style("text-anchor", "middle")
-            .style("direction", "vertical-lr")
-            .text("Y axis label TODO")
 
         this.updateFromState();
     }
@@ -128,7 +125,7 @@ export class BoardRankingGraph {
             .attr("font-size", 10)
             .attr("x", 2)
             .attr("y", d => d.y + d.height / 2)
-            .text((d, i) => d.height > 10 ? i + ": " + d.row.board : "")
+            .text((d, i) => d.height > 10 ? (i + 1) + ": " + d.row.board : "")
             .style("dominant-baseline", "middle")
             .attr("fill", "#000000")
     }
