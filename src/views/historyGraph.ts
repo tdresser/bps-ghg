@@ -45,10 +45,9 @@ export class HistoryGraph {
             .call(d3.axisBottom(this.#xScale)
                 .tickFormat(x => {
                     const firstYear = Math.round(x.valueOf());
-
                     return firstYear + "–" + (firstYear + 1).toString().slice(2, 4);
                 })
-            );
+            ).style("font-size", "12px")
 
         // Temporary scale.
         this.#yScale = d3.scaleLinear()
