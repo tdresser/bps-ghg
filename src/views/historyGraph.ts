@@ -40,6 +40,7 @@ export class HistoryGraph {
             .domain(YEARS)
             .padding(0.2);
 
+        // TODO: this is a lot of code just for a few line breaks.
         this.#svg.append("g")
             .attr("transform", `translate(0, ${this.#rect.height})`)
             .call(d3.axisBottom(this.#xScale)
@@ -50,7 +51,16 @@ export class HistoryGraph {
             ).style("font-size", "12px")
 
         this.#svg.append("g")
-            .attr("transform", `translate(0, ${this.#rect.height + 13})`)
+            .attr("transform", `translate(0, ${this.#rect.height + 10})`)
+            .call(d3.axisBottom(this.#xScale)
+                .tickFormat(_ => {
+                    return "–";
+                })
+            ).style("font-size", "12px")
+            .selectAll("path,line").remove();
+
+        this.#svg.append("g")
+            .attr("transform", `translate(0, ${this.#rect.height + 22})`)
             .call(d3.axisBottom(this.#xScale)
                 .tickFormat(x => {
                     const firstYear = Math.round(x.valueOf());
