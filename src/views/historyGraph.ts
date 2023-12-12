@@ -5,7 +5,7 @@ import { Selection } from '../util';
 import { BAR_COLOR, LINE_COLOR } from '../COLORS';
 
 const YEARS = [2015, 2016, 2017, 2018, 2019, 2020];
-const MARGIN = { top: 10, right: 30, bottom: 30, left: 60 };
+const MARGIN = { top: 10, right: 30, bottom: 40, left: 60 };
 
 export class HistoryGraph {
     #state: State;
@@ -45,9 +45,19 @@ export class HistoryGraph {
             .call(d3.axisBottom(this.#xScale)
                 .tickFormat(x => {
                     const firstYear = Math.round(x.valueOf());
-                    return firstYear + "–" + (firstYear + 1).toString().slice(2, 4);
+                    return firstYear.toString();
                 })
             ).style("font-size", "12px")
+
+        this.#svg.append("g")
+            .attr("transform", `translate(0, ${this.#rect.height + 13})`)
+            .call(d3.axisBottom(this.#xScale)
+                .tickFormat(x => {
+                    const firstYear = Math.round(x.valueOf());
+                    return (firstYear + 1).toString();
+                })
+            ).style("font-size", "12px")
+            .selectAll("path,line").remove();
 
         // Temporary scale.
         this.#yScale = d3.scaleLinear()
@@ -81,14 +91,14 @@ export class HistoryGraph {
             this.#historyTitle.innerText = "Board Performance";
             domainMax = Math.max(domainMax,
                 d3.max(boardRows, function (d) { return +d.energyIntNorm; }) ?? fail());
-                aggregateRows = boardRows;
+            aggregateRows = boardRows;
         }
 
         if (schoolRows && schoolRows.length > 0) {
             this.#historyTitle.innerText = "School vs Board Performance";
-            domainMax = Math.max(domainMax,d3.max(schoolRows, function (d) { return +d.energyIntNorm; }) ?? fail())
+            domainMax = Math.max(domainMax, d3.max(schoolRows, function (d) { return +d.energyIntNorm; }) ?? fail())
             if (!boardRows || boardRows.length == 0) {
-                throw("should only have school rows along with board rows.")
+                throw ("should only have school rows along with board rows.")
             }
         }
 
@@ -109,7 +119,7 @@ export class HistoryGraph {
             .attr("stroke-width", 1.5)
             .attr("d", d3.line()
                 // @ts-ignore
-                .x(d => this.#xScale(d.year) + this.#xScale.bandwidth()/2)
+                .x(d => this.#xScale(d.year) + this.#xScale.bandwidth() / 2)
                 // @ts-ignore
                 .y(d => this.#yScale(d.energyIntNorm)) as any
             );
